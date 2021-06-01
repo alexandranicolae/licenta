@@ -229,21 +229,35 @@ public class ChestionarActivity extends AppCompatActivity implements IntrebareFr
         }
 
         tvMesaj.setText(mesaj);
-        btnX.setOnClickListener(clickFelicitariPopup(context));
-        btn.setOnClickListener(clickFelicitariPopup(context));
+
+        if(context.getString(R.string.msj_nivelincheiat).equals(mesaj)) {
+            btnX.setOnClickListener(clickFelicitariPopupFinish());
+            btn.setOnClickListener(clickFelicitariPopupFinish());
+        }else{
+            btnX.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    templatePopup.dismiss();
+                }
+            });
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    templatePopup.dismiss();
+                }
+            });
+        }
         templatePopup.show();
     }
 
-    private View.OnClickListener clickFelicitariPopup(Context context) {
+    private View.OnClickListener clickFelicitariPopupFinish() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 templatePopup.dismiss();
-                if(context instanceof ChestionarActivity) {
-                    intent.putExtra(CODE_SCOR, punctaj);
-                    setResult(RESULT_OK,intent);
-                    finish();
-                }
+                intent.putExtra(CODE_SCOR, punctaj);
+                setResult(RESULT_OK,intent);
+                finish();
             }
         };
     }

@@ -66,8 +66,11 @@ public class ChestionarCapitoleActivity extends AppCompatActivity {
 
         getCaptioleDB();
         getChestionareDB();
-        initListaQuizModel();
+        //initListaQuizModel();
 
+    }
+
+    private void stuffs(){
         int i = 0;
         for (Capitol quiz : listaCapitole) {
             StringBuilder builder = new StringBuilder("LvL");
@@ -80,7 +83,7 @@ public class ChestionarCapitoleActivity extends AppCompatActivity {
         // end initializari
 
         // init adaptor
-        CapitolListaAdaptor adapter = new CapitolListaAdaptor(this, R.layout.forma_adaptor, listaAdaptor);
+        CapitolListaAdaptor adapter = new CapitolListaAdaptor(ChestionarCapitoleActivity.this, R.layout.forma_adaptor, listaAdaptor);
         listView.setAdapter(adapter);
 
         // click adaptor
@@ -145,8 +148,9 @@ public class ChestionarCapitoleActivity extends AppCompatActivity {
                                 String titlu = obiect.getString("numeCapitol");
                                 Capitol capitol = new Capitol(id, titlu);
                                 listaCapitole.add(capitol);
+                                listaCapitole.get(0).setActiv(true);
                             }
-                            
+                            stuffs();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -159,7 +163,7 @@ public class ChestionarCapitoleActivity extends AppCompatActivity {
                     }
                 });
         Volley.newRequestQueue(this).add(request);
-        //listaCapitole.get(0).setActiv(true);
+
     }
 
     private void getChestionareDB() {
