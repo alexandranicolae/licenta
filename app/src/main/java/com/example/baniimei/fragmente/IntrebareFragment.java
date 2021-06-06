@@ -1,8 +1,10 @@
 package com.example.baniimei.fragmente;
 
 import android.app.Activity;
+import android.graphics.Typeface;
 import android.os.Bundle;
 
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -17,7 +19,6 @@ import com.example.baniimei.activitati.ChestionarActivity;
 import com.example.baniimei.clase.Chestionar;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,6 +33,10 @@ public class IntrebareFragment extends Fragment {
     Chestionar chestionar;
     List<String> listarasp;
     int nrRasp;
+
+//    public void resetRgRasp() {
+//        this.rgRasp.setSelected(false);
+//    }
 
     public interface OnRadioGroupSelectedListener {
         void onButtonSelected(String value);
@@ -57,7 +62,7 @@ public class IntrebareFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view= inflater.inflate(R.layout.fragment_intrebare, container, false);
 
-        intrebare=view.findViewById(R.id.tvInfo);
+        intrebare=view.findViewById(R.id.tvIntrebare);
         rgRasp= view.findViewById(R.id.rgRaspunsuri);
 
         Bundle bundle=getArguments();
@@ -76,13 +81,19 @@ public class IntrebareFragment extends Fragment {
         listarasp.addAll(chestionar.getRaspunsuri());
         Collections.shuffle(listarasp);
 
+
+//        RadioButton rbInv=new RadioButton(view.getContext());
+//        rbInv.setChecked(true);
+//        rbInv.setVisibility(View.INVISIBLE);
+//        rgRasp.addView(rbInv);
         for (int i=0;i<nrRasp;i++) {
             RadioButton raspuns = new RadioButton(view.getContext());
-            raspuns.setId(i+100);
             raspuns.setChecked(false);
+            raspuns.setId(i+100);
             raspuns.setText(listarasp.get(i));
             rgRasp.addView(raspuns);
         }
+        rgRasp.clearCheck();
 
         rgRasp.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             public void onCheckedChanged(RadioGroup group, int checkedId) {

@@ -34,8 +34,8 @@ import java.util.List;
 
 public class ChestionarCapitoleActivity extends AppCompatActivity {
 
-    private static final String DB_URL_CAPITOL = "http://192.168.0.173/DB_licenta/SelectCapitol.php";
-    private static final String DB_URL_CHESTIONAR = "http://192.168.0.173/DB_licenta/SelectChestionar.php";
+    private static final String DB_URL_CAPITOL = "http://192.168.0.216/DB_licenta/SelectCapitol.php";
+    private static final String DB_URL_CHESTIONAR = "http://192.168.0.216/DB_licenta/SelectChestionar.php";
 
     private ListView listView;
     private TextView scor;

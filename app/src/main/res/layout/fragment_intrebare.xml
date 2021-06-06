@@ -7,7 +7,7 @@
     tools:context=".fragmente.IntrebareFragment">
 
     <TextView
-        android:id="@+id/tvInfo"
+        android:id="@+id/tvIntrebare"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -19,7 +19,7 @@
         android:padding="16dp"
         android:text="@string/intrfr_intrebaredefault"
         android:textAlignment="gravity"
-        android:textSize="14sp"
+        android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/rgRaspunsuri"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -29,9 +29,11 @@
         android:id="@+id/rgRaspunsuri"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@color/portocaliu_deschis"
+        android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/tvInfo"
-        app:layout_constraintStart_toStartOf="@+id/tvInfo"
+        app:layout_constraintEnd_toEndOf="@+id/tvIntrebare"
+        app:layout_constraintStart_toStartOf="@+id/tvIntrebare"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

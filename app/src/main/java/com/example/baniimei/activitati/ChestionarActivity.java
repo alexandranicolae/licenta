@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -188,7 +189,11 @@ public class ChestionarActivity extends AppCompatActivity implements IntrebareFr
         Bundle b = new Bundle();
         b.putSerializable(TAG_CHESTIONAR, listaChestionare.get(index));
         fragment.setArguments(b);
+
         getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+//        if(fragment instanceof IntrebareFragment){
+//            fragmentIntrb.resetRgRasp();
+//        }
     }
 
     private void adaugaPuncte() {

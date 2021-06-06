@@ -1,15 +1,12 @@
 package com.example.baniimei.fragmente;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.baniimei.R;
@@ -32,7 +29,7 @@ public class InfoFragment extends Fragment {
         View view= inflater.inflate(R.layout.fragment_info, container, false);
 
         tvTitlu=view.findViewById(R.id.tvInfoTitlu);
-        tvInfo=view.findViewById(R.id.tvInfo);
+        tvInfo=view.findViewById(R.id.tvInformatie);
         tvEx1=view.findViewById(R.id.tvExemplu1);
         tvEx2=view.findViewById(R.id.tvExemplu2);
 
