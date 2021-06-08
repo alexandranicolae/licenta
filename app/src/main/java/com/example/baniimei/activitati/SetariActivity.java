@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
 import android.app.Dialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -20,6 +21,7 @@ public class SetariActivity extends AppCompatActivity {
     SwitchCompat swSunet, swMuzica, swNotificari;
     TextView tvDespre, tvEvalueaza, tvDescarca;
     Dialog desprePopup, evalueazaPopup;
+    SharedPreferences.Editor sharedPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +31,8 @@ public class SetariActivity extends AppCompatActivity {
 
         init();
 
+        initPrefs();
+
         swSunet.setOnCheckedChangeListener(sunetClick());
         swMuzica.setOnCheckedChangeListener(muzicaClick());
         swNotificari.setOnCheckedChangeListener(notificariClick());
@@ -36,6 +40,13 @@ public class SetariActivity extends AppCompatActivity {
         tvDespre.setOnClickListener(despreClick());
         tvEvalueaza.setOnClickListener(evalueazaClick());
         tvDescarca.setOnClickListener(descarcaClick());
+    }
+
+    private void initPrefs() {
+        SharedPreferences preferinte= getSharedPreferences(getString(R.string.shprefs_numefisier), MODE_PRIVATE);
+        swSunet.setChecked(preferinte.getBoolean(getString(R.string.shprefs_sunet_key), true));
+        swMuzica.setChecked(preferinte.getBoolean(getString(R.string.shprefs_muzica_key), true));
+        swNotificari.setChecked(preferinte.getBoolean(getString(R.string.shprefs_notificari_key), true));
     }
 
     private void init() {
@@ -101,7 +112,7 @@ public class SetariActivity extends AppCompatActivity {
                         //sa se retina evaluarea in bd externa
                         // sa se salveze starea cu sharepref?
                         // doar prima data?
-                        Toast.makeText(getApplicationContext(), Float.toString(rating.getRating())+" "+mesaj.getText(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), rating.getRating() +" "+mesaj.getText(), Toast.LENGTH_LONG).show();
                         //de retinut ca rating bar-ul e de la 0 la 5!
                         evalueazaPopup.dismiss();
                     }
@@ -113,57 +124,33 @@ public class SetariActivity extends AppCompatActivity {
     }
 
     private View.OnClickListener descarcaClick() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //TODO
-                //descarca materiale
-            }
+        return v -> {
+            //TODO
+            //descarca materiale
         };
     }
 
     private CompoundButton.OnCheckedChangeListener notificariClick() {
-        return new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    //TODO
-                    // porneste notificari
-                } else {
-                    //TODO
-                    // opreste notificari
-                }
-            }
+        return (buttonView, isChecked) -> {
+            sharedPrefs = getSharedPreferences(getString(R.string.shprefs_numefisier), MODE_PRIVATE).edit();
+            sharedPrefs.putBoolean(getString(R.string.shprefs_notificari_key), isChecked);
+            sharedPrefs.apply();
         };
     }
 
     private CompoundButton.OnCheckedChangeListener muzicaClick() {
-        return new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    //TODO
-                    // porneste muzica
-                } else {
-                    //TODO
-                    // opreste muzica
-                }
-            }
+        return (buttonView, isChecked) -> {
+            sharedPrefs = getSharedPreferences(getString(R.string.shprefs_numefisier), MODE_PRIVATE).edit();
+            sharedPrefs.putBoolean(getString(R.string.shprefs_muzica_key), isChecked);
+            sharedPrefs.apply();
         };
     }
 
     private CompoundButton.OnCheckedChangeListener sunetClick() {
-        return new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    //TODO
-                    // porneste sunet
-                } else {
-                    //TODO
-                    // opreste sunet
-                }
-            }
+        return (buttonView, isChecked) -> {
+            sharedPrefs = getSharedPreferences(getString(R.string.shprefs_numefisier), MODE_PRIVATE).edit();
+            sharedPrefs.putBoolean(getString(R.string.shprefs_sunet_key), isChecked);
+            sharedPrefs.apply();
         };
     }
 }

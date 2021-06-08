@@ -8,10 +8,11 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +44,12 @@ public class ChestionarActivity extends AppCompatActivity implements IntrebareFr
 
     Dialog templatePopup;
 
+    private static MediaPlayer sunetRspGresit=null;
+    private static MediaPlayer sunetRspCorect=null;
+
+    SharedPreferences preferinteSunet;
+    SharedPreferences.Editor sharedPrefsEditor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +60,12 @@ public class ChestionarActivity extends AppCompatActivity implements IntrebareFr
         btnNext=findViewById(R.id.btnNext);
         btnBack=findViewById(R.id.btnBack);
         scor=findViewById(R.id.tvPuncte);
+
+        preferinteSunet = getSharedPreferences(getString(R.string.shprefs_numefisier), MODE_PRIVATE);
+        if(preferinteSunet.getBoolean(getString(R.string.shprefs_sunet_key), true)) {
+            sunetRspGresit = MediaPlayer.create(this, R.raw.wrong);
+            sunetRspCorect = MediaPlayer.create(this, R.raw.corect);
+        }
 
         intent=getIntent();
         Bundle bundle =  intent.getExtras();
@@ -150,6 +163,9 @@ public class ChestionarActivity extends AppCompatActivity implements IntrebareFr
                             //da-> e corect?
                             if (listaChestionare.get(index).getRaspunsCorect().equals(raspDat)) {
                                 // da-> felicitari popup msj  +punctaj
+                                //TODO verifica daca poate reda sunetul (SharedPrefs)
+                                if(sunetRspCorect!=null)
+                                    sunetRspCorect.start();
                                 adaugaPuncte();
                                 // s-a terminat?
                                 if (index + 1 < listaChestionare.size()) {
@@ -162,7 +178,10 @@ public class ChestionarActivity extends AppCompatActivity implements IntrebareFr
                                     showMesajPopup(ChestionarActivity.this,getString(R.string.msj_nivelincheiat));
                                 }
                             } else {
-                                // nu-> mesaj try again
+                                // nu-> mesaj try again + sunet
+                                //TODO verifica daca poate reda sunetul (SharedPrefs)
+                                if(sunetRspGresit!=null)
+                                    sunetRspGresit.start();
                                 AlertDialog.Builder builder = new AlertDialog.Builder(ChestionarActivity.this);
                                 builder.setMessage(R.string.msj_raspmaiincearca);
                                 builder.setCancelable(true);
@@ -198,12 +217,22 @@ public class ChestionarActivity extends AppCompatActivity implements IntrebareFr
 
     private void adaugaPuncte() {
         punctaj+=5;
-        scor.setText(punctaj+"");
+        String puncte=String.valueOf(punctaj);
+        scor.setText(puncte);
+        salveazaScor(puncte);
     }
 
     private void scadePuncte() {
         punctaj-=2;
-        scor.setText(punctaj+"");
+        String puncte= String.valueOf(punctaj);
+        scor.setText(puncte);
+        salveazaScor(puncte);
+    }
+
+    private void salveazaScor(String puncte){
+        sharedPrefsEditor = getSharedPreferences(getString(R.string.shprefs_scor_numefis), MODE_PRIVATE).edit();
+        sharedPrefsEditor.putString(getString(R.string.shprefs_scor),puncte);
+        sharedPrefsEditor.apply();
     }
 
     public void showMesajPopup(Context context, String mesaj, String... args){

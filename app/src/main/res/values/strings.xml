@@ -14,7 +14,15 @@
     <string name="exit_message">Doriți să părăsiți aplicația?</string>
     <string name="exit_da">DA</string>
     <string name="despre_titlu">Despre Aplicatie</string>
-    <string name="despre_text">Aceasta este Aplicatia Banii Mei - joc de educatie financiara, realizat de NICOLAE Florentina-Alexandra, in cadrul proiectului de licenta la facultatea CSIE, specializarea Informatica Economica, in cadrul ASE, an scolar 2020-2021, profesor indrumator prof. univ. dr. DARDALA Marian</string>
+    <string name="despre_text">Aceasta este Aplicatia Banii Mei - joc de educatie financiara,
+        realizat de NICOLAE Florentina-Alexandra, in cadrul proiectului de licenta la facultatea CSIE,
+        specializarea Informatica Economica, in cadrul ASE, an scolar 2020-2021,
+        profesor indrumator prof. univ. dr. DARDALA Marian.
+        \n\nMelodie fundal:
+        \nGive Me A Smile by Free Music | https://soundcloud.com/fm_freemusic
+        \nMusic promoted by https://www.chosic.com/
+        \nCreative Commons Attribution 3.0 Unported License
+        \nhttps://creativecommons.org/licenses/by/3.0/deed.en_US</string>
     <string name="despre_rate">Oferiti un calificativ:</string>
     <string name="x_buton">X</string>
     <string name="contdesc_moneda">Moneda</string>
@@ -48,4 +56,10 @@
     <string name="joc_incheiat">Felicitari! Esti un geniu in domeniul financiar si ai incheiat toate capitolele! In continuare, poti relua informatiile, poti descarca foi de lucru sau poti astepta noi implementari (nu uita sa actualizezi aplicatia)</string>
     <string name="titlu_joc_incheiat">Joc incheiat!</string>
     <string name="ok_finish">OK</string>
+    <string name="shprefs_sunet_key">Sunet</string>
+    <string name="shprefs_muzica_key">Muzica</string>
+    <string name="shprefs_notificari_key">Notificari</string>
+    <string name="shprefs_numefisier">PreferinteSetari</string>
+    <string name="shprefs_scor_numefis">PreferinteScor</string>
+    <string name="shprefs_scor">Scor</string>
 </resources>

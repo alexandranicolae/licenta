@@ -4,8 +4,12 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -22,6 +26,7 @@ import com.example.baniimei.R;
 import com.example.baniimei.clase.Capitol;
 import com.example.baniimei.clase.CapitolListaAdaptor;
 import com.example.baniimei.clase.Chestionar;
+import com.example.baniimei.clase.SunetFundalService;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,9 +51,13 @@ public class ChestionarCapitoleActivity extends AppCompatActivity {
 
     static final String TAG_SCOR = "scor";
     static final String TAG_CHESTIONARE = "chestionare";
-    static int REQUEST_CODE_SCOR = 300;
+    static int REQUEST_CODE_OK = 300;
 
     private int nrActive = 0;
+
+    private static MediaPlayer sunetJocIncheiat;
+
+    SharedPreferences preferinteMuzica, prefScor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,18 +68,40 @@ public class ChestionarCapitoleActivity extends AppCompatActivity {
         // start initializari
         listView = findViewById(R.id.listView);
         scor = findViewById(R.id.tvPuncte);
+        sunetJocIncheiat = MediaPlayer.create(this, R.raw.success);
 
         listaAdaptor = new ArrayList<>();
         listaCapitole = new ArrayList<>();
         listaChestionare= new ArrayList<>();
 
+        preferinteMuzica = getSharedPreferences(getString(R.string.shprefs_numefisier), MODE_PRIVATE);
+        handleSunetFundal();
+
+        prefScor=getSharedPreferences(getString(R.string.shprefs_scor_numefis),MODE_PRIVATE);
+        scor.setText(prefScor.getString(getString(R.string.shprefs_scor), "15"));
+
+        SharedPreferences preferinte= getSharedPreferences(getString(R.string.shprefs_scor_numefis), MODE_PRIVATE);
+        scor.setText(preferinte.getString(getString(R.string.shprefs_scor), "15"));
+
         getCaptioleDB();
         getChestionareDB();
-        //initListaQuizModel();
-
+        //initListaQuizModel(); //daca db e inactiva
     }
 
-    private void stuffs(){
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handleSunetFundal();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        scor.setText(prefScor.getString(getString(R.string.shprefs_scor), "15"));
+    }
+
+    private void initAfterDB(){
+        // init lista de strings pt adaptor
         int i = 0;
         for (Capitol quiz : listaCapitole) {
             StringBuilder builder = new StringBuilder("LvL");
@@ -80,13 +111,12 @@ public class ChestionarCapitoleActivity extends AppCompatActivity {
             builder.append(quiz.getNumeCapitol());
             listaAdaptor.add(builder.toString());
         }
-        // end initializari
 
         // init adaptor
         CapitolListaAdaptor adapter = new CapitolListaAdaptor(ChestionarCapitoleActivity.this, R.layout.forma_adaptor, listaAdaptor);
         listView.setAdapter(adapter);
 
-        // click adaptor
+        // init item clickEvent pt adaptor
         listView.setOnItemClickListener(adapterItemClick());
     }
 
@@ -112,7 +142,7 @@ public class ChestionarCapitoleActivity extends AppCompatActivity {
                     bundle.putSerializable(TAG_CHESTIONARE, (Serializable) temp);
                     intent.putExtras(bundle);
 
-                    startActivityForResult(intent, REQUEST_CODE_SCOR);
+                    startActivityForResult(intent, REQUEST_CODE_OK);
                 } else {
                     // ALERTA nivel inactiv
 
@@ -135,25 +165,22 @@ public class ChestionarCapitoleActivity extends AppCompatActivity {
     // TODO preia din bd
     private void getCaptioleDB() {
         StringRequest request = new StringRequest(Request.Method.GET, DB_URL_CAPITOL,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONArray capitoleJson = new JSONArray(response);
+                response -> {
+                    try {
+                        JSONArray capitoleJson = new JSONArray(response);
 
-                            for (int i = 0; i < capitoleJson.length(); i++) {
-                                JSONObject obiect = capitoleJson.getJSONObject(i);
+                        for (int i = 0; i < capitoleJson.length(); i++) {
+                            JSONObject obiect = capitoleJson.getJSONObject(i);
 
-                                int id = obiect.getInt("idCapitol");
-                                String titlu = obiect.getString("numeCapitol");
-                                Capitol capitol = new Capitol(id, titlu);
-                                listaCapitole.add(capitol);
-                                listaCapitole.get(0).setActiv(true);
-                            }
-                            stuffs();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                            int id = obiect.getInt("idCapitol");
+                            String titlu = obiect.getString("numeCapitol");
+                            Capitol capitol = new Capitol(id, titlu);
+                            listaCapitole.add(capitol);
+                            listaCapitole.get(0).setActiv(true);
                         }
+                        initAfterDB();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
                 },
                 new Response.ErrorListener() {
@@ -230,27 +257,52 @@ public class ChestionarCapitoleActivity extends AppCompatActivity {
         listaChestionare.add(new Chestionar(30,"Titlu3", "Info3", "ex1.3", "ex2.3", "Intrebare3?", "rasp a", rasp, "mesaj3",3));
     }
 
-    // preluare scor din chestionarActivity
+    // preluare scor din chestionarActivity, activeaza nivel urmator
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQUEST_CODE_SCOR && resultCode == RESULT_OK && data != null) {
-            Bundle b = data.getExtras();
-            int s = (int) b.getSerializable(ChestionarActivity.CODE_SCOR);
-            scor.setText(String.valueOf(s));
+        if (resultCode == RESULT_OK && data != null) {
+            // requestCode == REQUEST_CODE_OK &&
+//            Bundle b = data.getExtras();
+//            int s = (int) b.getSerializable(ChestionarActivity.CODE_SCOR);
+//            scor.setText(String.valueOf(s));
+            scor.setText(prefScor.getString(getString(R.string.shprefs_scor), "15"));
 
-            // activeaza nivel urmator;
-            nrActive++;
-            if (nrActive < listaCapitole.size()) {
-                listaCapitole.get(nrActive).setActiv(true);
+            activeazaNivelUrmator();
+        }
+    }
+
+    // activeaza nivel urmator; daca exista, daca nu -> felicitari, joc incheiat
+    private void activeazaNivelUrmator(){
+        nrActive++;
+        if (nrActive < listaCapitole.size()) {
+            listaCapitole.get(nrActive).setActiv(true);
+        } else {
+            //mesaj felicitari joc incheiat
+            sunetJocIncheiat.start();
+            ChestionarActivity c = new ChestionarActivity();
+            c.showMesajPopup(ChestionarCapitoleActivity.this, getString(R.string.joc_incheiat), getString(R.string.titlu_joc_incheiat), getString(R.string.ok_finish));
+        }
+    }
+
+    private void handleSunetFundal() {
+        if(preferinteMuzica.getBoolean(getString(R.string.shprefs_muzica_key), true)) {
+            if (isMyServiceRunning(SunetFundalService.class)) {
+                stopService(new Intent(ChestionarCapitoleActivity.this, SunetFundalService.class));
             } else {
-                //mesaj felicitari joc incheiat?
-                ChestionarActivity c = new ChestionarActivity();
-                c.showMesajPopup(ChestionarCapitoleActivity.this, getString(R.string.joc_incheiat), getString(R.string.titlu_joc_incheiat), getString(R.string.ok_finish));
+                startService(new Intent(ChestionarCapitoleActivity.this, SunetFundalService.class));
             }
         }
     }
 
-
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

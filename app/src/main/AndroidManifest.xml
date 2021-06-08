@@ -27,7 +27,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".clase.Notificare"/>
+
+        <service android:name=".clase.SunetFundalService" />
     </application>
+
 
     <uses-permission android:name="android.permission.INTERNET"/>
 
