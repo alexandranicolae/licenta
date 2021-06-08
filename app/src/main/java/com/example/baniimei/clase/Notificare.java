@@ -18,6 +18,6 @@ public class Notificare extends BroadcastReceiver {
                 .setContentText("Hai sa te joci si sa afli cum functioneaza lumea banilor!");
         NotificationManagerCompat managerCompat= NotificationManagerCompat.from(context);
 
-        managerCompat.notify(99, builder.build());
+        managerCompat.notify(100, builder.build());
     }
 }
