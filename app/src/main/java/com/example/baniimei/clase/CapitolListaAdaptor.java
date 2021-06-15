@@ -1,6 +1,7 @@
 package com.example.baniimei.clase;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,30 +15,45 @@ import androidx.annotation.Nullable;
 import com.example.baniimei.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-public class CapitolListaAdaptor extends ArrayAdapter<String>{
+public class CapitolListaAdaptor extends ArrayAdapter<Capitol> {
 
-    private Context context;
-    private int resource;
+    private final Context context;
+    private final int resource;
 
     private TextView textView;
+    private ImageView lock;
 
-    public CapitolListaAdaptor(Context context, int resource, ArrayList<String> objects) {
+    private final List<Capitol> capitols;
+
+    public CapitolListaAdaptor(Context context, int resource, ArrayList<Capitol> objects) {
         super(context, resource, objects);
-        this.context=context;
-        this.resource=resource;
+        this.context = context;
+        this.resource = resource;
+        this.capitols = objects;
     }
 
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-        String lvlname=getItem(position);
-        LayoutInflater inflater=LayoutInflater.from(context);
-        convertView=inflater.inflate(resource,parent,false);
+        Capitol capitol = (Capitol) capitols.get(position);
+        LayoutInflater inflater = LayoutInflater.from(context);
+        convertView = inflater.inflate(resource, parent, false);
 
-        textView=convertView.findViewById(R.id.tvLvl);
-        textView.setText(lvlname);
+        if (capitol != null) {
+            textView = convertView.findViewById(R.id.tvLvl);
+            textView.setText(capitol.getNumeCapitol());
+
+            lock = convertView.findViewById(R.id.imgLock);
+            if (capitol.isActiv()) {
+                lock.setVisibility(View.INVISIBLE);
+            } else {
+                lock.setVisibility(View.VISIBLE);
+            }
+        }
 
         return convertView;
     }

@@ -1,10 +1,8 @@
 package com.example.baniimei.fragmente;
 
 import android.app.Activity;
-import android.graphics.Typeface;
 import android.os.Bundle;
 
-import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -15,7 +13,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.example.baniimei.R;
-import com.example.baniimei.activitati.ChestionarActivity;
+import com.example.baniimei.activitati.JocActivity;
 import com.example.baniimei.clase.Chestionar;
 
 import java.util.ArrayList;
@@ -67,7 +65,7 @@ public class IntrebareFragment extends Fragment {
 
         Bundle bundle=getArguments();
         if (bundle != null) {
-            chestionar= (Chestionar) bundle.getSerializable(ChestionarActivity.TAG_CHESTIONAR);
+            chestionar = (Chestionar) bundle.getSerializable(JocActivity.TAG_CHESTIONAR);
         }
         else {
             throw new Error("Eroare transfer chestionar");

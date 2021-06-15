@@ -14,15 +14,33 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.baniimei.R;
+import com.example.baniimei.clase.Capitol;
 import com.example.baniimei.clase.Notificare;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String DB_URL_CAPITOL = "http://192.168.0.216/DB_licenta/SelectCapitol.php";
+    protected static final String INTENT_LIST = "List";
+
     private Button btnSetari;
-    private Button btnStart;
+    private Button btnStart, btnInformatii;
     private Button btnExit;
+
+    private ArrayList<Capitol> listaCapitole;
 
     SharedPreferences shNotificari;
 
@@ -37,29 +55,47 @@ public class MainActivity extends AppCompatActivity {
         btnSetari.setOnClickListener(setariClick());
         btnExit.setOnClickListener(exitClick());
         btnStart.setOnClickListener(startClick());
+        btnInformatii.setOnClickListener(informatiiClick());
 
-        shNotificari=getSharedPreferences(getString(R.string.shprefs_numefisier),MODE_PRIVATE);
-        if(shNotificari.getBoolean(getString(R.string.shprefs_notificari_key),true)){
+        listaCapitole = new ArrayList<>();
+
+        shNotificari = getSharedPreferences(getString(R.string.shprefs_numefisier), MODE_PRIVATE);
+        if (shNotificari.getBoolean(getString(R.string.shprefs_notificari_key), true)) {
             creareCanalNotificare();
-            Intent intentNotificare=new Intent(MainActivity.this, Notificare.class);
-            PendingIntent pendingIntent= PendingIntent.getBroadcast(MainActivity.this,0,intentNotificare,0);
+            Intent intentNotificare = new Intent(MainActivity.this, Notificare.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intentNotificare, 0);
 
-            AlarmManager alarmManager= (AlarmManager) getSystemService(ALARM_SERVICE);
-            alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis()+1000*10, AlarmManager.INTERVAL_DAY, pendingIntent);
+            AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+            alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis() + 1000 * 10, AlarmManager.INTERVAL_DAY, pendingIntent);
         }
+
+        getCaptioleDB();
     }
 
-    private void init(){
-        btnSetari= findViewById(R.id.btnSettings);
-        btnStart=findViewById(R.id.btnStart);
-        btnExit=findViewById(R.id.btnExit);
+    private void init() {
+        btnSetari = findViewById(R.id.btnSettings);
+        btnStart = findViewById(R.id.btnStart);
+        btnInformatii = findViewById(R.id.btnInformatii);
+        btnExit = findViewById(R.id.btnExit);
+    }
+
+    private View.OnClickListener informatiiClick() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, CapitoleInfoActivity.class);
+                intent.putExtra(INTENT_LIST, listaCapitole);
+                startActivity(intent);
+            }
+        };
     }
 
     private View.OnClickListener startClick() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent= new Intent(MainActivity.this, ChestionarCapitoleActivity.class);
+                Intent intent = new Intent(MainActivity.this, JocActivity.class);
+                intent.putExtra(INTENT_LIST, listaCapitole);
                 startActivity(intent);
             }
         };
@@ -101,15 +137,44 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    private void creareCanalNotificare(){
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            String nume= "CanalNotificareHaiLaJoaca";
+    private void creareCanalNotificare() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String nume = "CanalNotificareHaiLaJoaca";
 
-            NotificationChannel canal=new NotificationChannel("notifyJoc",nume, NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationChannel canal = new NotificationChannel("notifyJoc", nume, NotificationManager.IMPORTANCE_DEFAULT);
 
-            NotificationManager manager=getSystemService(NotificationManager.class);
+            NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(canal);
         }
+    }
+
+    private void getCaptioleDB() {
+        StringRequest request = new StringRequest(Request.Method.GET, DB_URL_CAPITOL,
+                response -> {
+                    try {
+                        JSONArray capitoleJson = new JSONArray(response);
+
+                        for (int i = 0; i < capitoleJson.length(); i++) {
+                            JSONObject obiect = capitoleJson.getJSONObject(i);
+
+                            int id = obiect.getInt("idCapitol");
+                            String titlu = obiect.getString("numeCapitol");
+                            Capitol capitol = new Capitol(id, titlu);
+                            listaCapitole.add(capitol);
+                        }
+                        listaCapitole.get(0).activeaza();
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(MainActivity.this, "Eroare baze de date Capitole: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
+        Volley.newRequestQueue(this).add(request);
     }
 
 }

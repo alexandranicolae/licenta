@@ -15,7 +15,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="8dp"
-        android:contentDescription="@string/nume_app"
+        android:contentDescription="@string/app_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnSettings"
@@ -45,7 +45,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/btnStart"
+        android:id="@+id/btnInformatii"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -54,12 +54,30 @@
         android:background="@drawable/forma_buton"
         android:elevation="20dp"
         android:fontFamily="casual"
-        android:text="@string/start_game"
+        android:text="Sa invatam!"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/logo" />
+
+    <Button
+        android:id="@+id/btnStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/forma_buton"
+        android:elevation="20dp"
+        android:fontFamily="casual"
+        android:text="Sa ne jucam!"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnInformatii" />
 
     <Button
         android:id="@+id/btnExit"
@@ -71,7 +89,7 @@
         android:background="@drawable/forma_buton"
         android:elevation="20dp"
         android:fontFamily="casual"
-        android:text="@string/exit_game"
+        android:text="Iesire"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"

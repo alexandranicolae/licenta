@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.baniimei">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_icon_100"
@@ -9,13 +11,14 @@
         android:roundIcon="@drawable/ic_icon_100"
         android:supportsRtl="true"
         android:theme="@style/splashScreenTheme">
-        <activity android:name=".activitati.ChestionarActivity"></activity>
+        <activity android:name=".activitati.InfoActivity"></activity>
+        <activity android:name=".activitati.JocActivity" />
         <activity
             android:name=".activitati.SetariActivity"
             android:parentActivityName=".activitati.MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activitati.ChestionarCapitoleActivity"
+            android:name=".activitati.CapitoleInfoActivity"
             android:parentActivityName=".activitati.MainActivity"
             android:screenOrientation="portrait" />
         <activity
@@ -28,12 +31,9 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".clase.Notificare"/>
+        <receiver android:name=".clase.Notificare" />
 
         <service android:name=".clase.SunetFundalService" />
     </application>
-
-
-    <uses-permission android:name="android.permission.INTERNET"/>
 
 </manifest>

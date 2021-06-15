@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">Banii Mei</string>
     <string name="start_game">Start Game</string>
-    <string name="nume_app">Banii Mei</string>
     <string name="owner">©Aplicație creată de Nicolae Florentina-Alexandra, ASE 2021</string>
     <string name="setari_titlu">Setari</string>
     <string name="setari_sunet">Sunet</string>

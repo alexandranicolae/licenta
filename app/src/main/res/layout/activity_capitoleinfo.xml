@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/fundal"
-    tools:context=".activitati.ChestionarCapitoleActivity">
+    tools:context=".activitati.CapitoleInfoActivity">
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -14,27 +14,24 @@
         android:background="@color/purple_finchis"
         android:orientation="horizontal"
         android:padding="8dp"
-        android:weightSum="100"
+        android:weightSum="40"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="30dp"
-            android:layout_height="37dp"
-            android:layout_weight="10"
-            android:contentDescription="@string/contdesc_moneda"
-            app:srcCompat="@drawable/ic_icon_100" />
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="10" />
 
         <TextView
             android:id="@+id/tvPuncte"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="10"
+            android:layout_weight="20"
             android:fontFamily="casual"
-            android:gravity="fill_vertical"
-            android:text="@string/default_money"
+            android:gravity="center|fill_vertical"
+            android:text="Capitole"
             android:textColor="@color/white"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -42,15 +39,16 @@
         <Space
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="80" />
+            android:layout_weight="10" />
 
     </LinearLayout>
 
     <ListView
-        android:id="@+id/listView"
+        android:id="@+id/listViewInfo"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
