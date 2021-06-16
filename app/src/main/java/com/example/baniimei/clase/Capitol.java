@@ -1,20 +1,28 @@
 package com.example.baniimei.clase;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
 public class Capitol implements Serializable {
 
     private int id;
     private String numeCapitol;
     private boolean eActiv;
-    private static int nrActive;
+
+    private static int nrCapitoleActive;
+    private Categorie categorie;
+
+    private int nrChTotale;
+    private int nrChCompletate;
 
     public Capitol(int id, String numeCapitol) {
         this.id = id;
         this.numeCapitol = numeCapitol;
         this.eActiv = false;
-        nrActive = 0;
+        nrCapitoleActive = 0;
+        this.categorie = Categorie.CHESTIONAR;
+
+        this.nrChTotale = 0;
+        this.nrChCompletate = 0;
     }
 
     public String getNumeCapitol() {
@@ -40,7 +48,7 @@ public class Capitol implements Serializable {
     public void activeaza() {
         if (!this.isActiv()) {
             this.eActiv = true;
-            nrActive++;
+            nrCapitoleActive++;
         }
     }
 
@@ -48,11 +56,36 @@ public class Capitol implements Serializable {
         this.eActiv = eActiv;
     }
 
-    public static int getNrActive() {
-        return nrActive;
+    public static int getNrCapitoleActive() {
+        return nrCapitoleActive;
     }
 
-    public static void setNrActive(int nrActive) {
-        Capitol.nrActive = nrActive;
+    public static void setNrCapitoleActive(int nrCapitoleActive) {
+        Capitol.nrCapitoleActive = nrCapitoleActive;
+    }
+
+    public Categorie getCategorie() {
+        return categorie;
+    }
+
+    public void setCategorie(Categorie categorie) {
+        this.categorie = categorie;
+    }
+
+
+    public int getNrChTotale() {
+        return nrChTotale;
+    }
+
+    public void setNrChTotale(int nrChTotale) {
+        this.nrChTotale = nrChTotale;
+    }
+
+    public int getNrChCompletate() {
+        return nrChCompletate;
+    }
+
+    public void setNrChCompletate(int nrChCompletate) {
+        this.nrChCompletate = nrChCompletate;
     }
 }

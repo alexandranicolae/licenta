@@ -21,29 +21,47 @@
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_icon_100" />
 
-        <ImageView
-            android:id="@+id/imgLock"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/imgLvl"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@android:drawable/ic_lock_idle_lock" />
-
         <TextView
-            android:id="@+id/tvLvl"
+            android:id="@+id/tvCategorie"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:fontFamily="casual"
-            android:text="@string/default_lvlname"
+            android:text="Categorie"
             android:textColor="@color/white"
             android:textSize="24sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/imgLvl"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvDetalii"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="casual"
+            android:text="detalii"
+            android:textColor="#E4FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/imgLvl"
+            app:layout_constraintTop_toBottomOf="@+id/tvCategorie" />
+
+        <ProgressBar
+            android:id="@+id/pgBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/imgLvl"
+            app:layout_constraintTop_toBottomOf="@+id/tvCategorie" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

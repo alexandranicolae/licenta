@@ -1,7 +1,6 @@
 package com.example.baniimei.clase;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +14,9 @@ import androidx.annotation.Nullable;
 import com.example.baniimei.R;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class CapitolListaAdaptor extends ArrayAdapter<Capitol> {
+public class ListaAdaptorInfo extends ArrayAdapter<Capitol> {
 
     private final Context context;
     private final int resource;
@@ -28,7 +26,7 @@ public class CapitolListaAdaptor extends ArrayAdapter<Capitol> {
 
     private final List<Capitol> capitols;
 
-    public CapitolListaAdaptor(Context context, int resource, ArrayList<Capitol> objects) {
+    public ListaAdaptorInfo(Context context, int resource, ArrayList<Capitol> objects) {
         super(context, resource, objects);
         this.context = context;
         this.resource = resource;
@@ -44,7 +42,7 @@ public class CapitolListaAdaptor extends ArrayAdapter<Capitol> {
         convertView = inflater.inflate(resource, parent, false);
 
         if (capitol != null) {
-            textView = convertView.findViewById(R.id.tvLvl);
+            textView = convertView.findViewById(R.id.tvCategorie);
             textView.setText(capitol.getNumeCapitol());
 
             lock = convertView.findViewById(R.id.imgLock);

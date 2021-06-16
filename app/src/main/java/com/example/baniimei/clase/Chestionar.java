@@ -10,7 +10,8 @@ public class Chestionar implements Serializable {
     private String raspunsCorect;
     private List<String> raspunsuri;
     private String indiciu;
-    private final int idCapitol;
+    private int idCapitol;
+    private Boolean aRaspuns;
 
     public Chestionar(int id, String intrebare, String raspunsCorect, List<String> raspunsuri, String indiciu, int idCapitol) {
         this.id = id;
@@ -19,6 +20,7 @@ public class Chestionar implements Serializable {
         this.raspunsuri = raspunsuri;
         this.indiciu = indiciu;
         this.idCapitol = idCapitol;
+        this.aRaspuns = false;
     }
 
     public int getId() {
@@ -57,5 +59,23 @@ public class Chestionar implements Serializable {
         this.indiciu = indiciu;
     }
 
-    public void setId(int id) { this.id = id; }
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getIdCapitol() {
+        return idCapitol;
+    }
+
+    public void setIdCapitol(int idCapitol) {
+        this.idCapitol = idCapitol;
+    }
+
+    public Boolean aRaspuns() {
+        return aRaspuns;
+    }
+
+    public void setDacaARaspuns(Boolean aRaspuns) {
+        this.aRaspuns = aRaspuns;
+    }
 }

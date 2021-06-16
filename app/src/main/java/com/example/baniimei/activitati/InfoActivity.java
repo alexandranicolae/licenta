@@ -42,7 +42,6 @@ public class InfoActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btnBack);
 
         preferinteMuzica = getSharedPreferences(getString(R.string.shprefs_numefisier), MODE_PRIVATE);
-        handleSunetFundal();
 
         indexCurent = 0;
 
@@ -61,12 +60,6 @@ public class InfoActivity extends AppCompatActivity {
         tvInfo.setText(listaInformatii.get(indexCurent).getInformatie());
         tvEx1.setText(listaInformatii.get(indexCurent).getExemplu1());
         tvEx2.setText(listaInformatii.get(indexCurent).getExemplu2());
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        handleSunetFundal();
     }
 
     private View.OnClickListener clickBtnBack() {
@@ -101,25 +94,5 @@ public class InfoActivity extends AppCompatActivity {
                 }
             }
         };
-    }
-
-    private void handleSunetFundal() {
-        if (preferinteMuzica.getBoolean(getString(R.string.shprefs_muzica_key), true)) {
-            if (isMyServiceRunning(SunetFundalService.class)) {
-                stopService(new Intent(InfoActivity.this, SunetFundalService.class));
-            } else {
-                startService(new Intent(InfoActivity.this, SunetFundalService.class));
-            }
-        }
-    }
-
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
     }
 }

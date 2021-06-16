@@ -3,10 +3,12 @@ package com.example.baniimei.activitati;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,6 +26,7 @@ import com.android.volley.toolbox.Volley;
 import com.example.baniimei.R;
 import com.example.baniimei.clase.Capitol;
 import com.example.baniimei.clase.Notificare;
+import com.example.baniimei.clase.SunetFundalService;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Capitol> listaCapitole;
 
+    SharedPreferences preferinteMuzica;
     SharedPreferences shNotificari;
 
     @Override
@@ -58,6 +62,9 @@ public class MainActivity extends AppCompatActivity {
         btnInformatii.setOnClickListener(informatiiClick());
 
         listaCapitole = new ArrayList<>();
+
+        preferinteMuzica = getSharedPreferences(getString(R.string.shprefs_numefisier), MODE_PRIVATE);
+        handleSunetFundal();
 
         shNotificari = getSharedPreferences(getString(R.string.shprefs_numefisier), MODE_PRIVATE);
         if (shNotificari.getBoolean(getString(R.string.shprefs_notificari_key), true)) {
@@ -79,6 +86,13 @@ public class MainActivity extends AppCompatActivity {
         btnExit = findViewById(R.id.btnExit);
     }
 
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handleSunetFundal();
+    }
+
     private View.OnClickListener informatiiClick() {
         return new View.OnClickListener() {
             @Override
@@ -94,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, JocActivity.class);
+                Intent intent = new Intent(MainActivity.this, CapitoleJocActivity.class);
                 intent.putExtra(INTENT_LIST, listaCapitole);
                 startActivity(intent);
             }
@@ -130,11 +144,31 @@ public class MainActivity extends AppCompatActivity {
                         dialog.cancel();
                     }
                 });
-                AlertDialog alertDialog=builder.create();
+                AlertDialog alertDialog = builder.create();
                 alertDialog.show();
             }
 
         };
+    }
+
+    private void handleSunetFundal() {
+        if (preferinteMuzica.getBoolean(getString(R.string.shprefs_muzica_key), true)) {
+            if (isMyServiceRunning(SunetFundalService.class)) {
+                stopService(new Intent(MainActivity.this, SunetFundalService.class));
+            } else {
+                startService(new Intent(MainActivity.this, SunetFundalService.class));
+            }
+        }
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void creareCanalNotificare() {

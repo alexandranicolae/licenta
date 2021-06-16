@@ -11,7 +11,8 @@
         android:roundIcon="@drawable/ic_icon_100"
         android:supportsRtl="true"
         android:theme="@style/splashScreenTheme">
-        <activity android:name=".activitati.InfoActivity"></activity>
+        <activity android:name=".activitati.CapitoleJocActivity"></activity>
+        <activity android:name=".activitati.InfoActivity" />
         <activity android:name=".activitati.JocActivity" />
         <activity
             android:name=".activitati.SetariActivity"

@@ -47,10 +47,10 @@
     <string name="intrfr_raspunscorectdef">Raspuns corect</string>
     <string name="msj_nivelincheiat">Nivelul s-a incheiat</string>
     <string name="msj_raspmaiincearca">Raspunsul nu este corect! Mai incearca!</string>
-    <string name="hint_hint">Ofera indiciu (-2 banuti)</string>
+    <string name="hint_hint">Ofera indiciu (-5 banuti)</string>
     <string name="nu">NU</string>
     <string name="da">DA</string>
-    <string name="dialog_hint">Un indiciu costa 2 banuti. Doriti sa-l cumparati?</string>
+    <string name="dialog_hint">Un indiciu costa 5 banuti. Doriti sa-l cumparati?</string>
     <string name="hint_title">Indiciu</string>
     <string name="joc_incheiat">Felicitari! Esti un geniu in domeniul financiar si ai incheiat toate capitolele! In continuare, poti relua informatiile, poti descarca foi de lucru sau poti astepta noi implementari (nu uita sa actualizezi aplicatia)</string>
     <string name="titlu_joc_incheiat">Joc incheiat!</string>

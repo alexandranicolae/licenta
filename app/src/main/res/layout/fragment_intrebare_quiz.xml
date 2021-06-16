@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragmente.IntrebareFragment">
+    tools:context=".fragmente.IntrebareQuizFragment">
 
     <TextView
-        android:id="@+id/tvIntrebare"
+        android:id="@+id/tvIntrebareLibera"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -15,7 +15,6 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="24dp"
         android:background="@color/portocaliu_deschis"
-        android:fontFamily="casual"
         android:padding="16dp"
         android:text="@string/intrfr_intrebaredefault"
         android:textAlignment="gravity"
@@ -30,15 +29,15 @@
         android:id="@+id/rgRaspunsuri"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="24dp"
         android:layout_marginBottom="8dp"
         android:background="@color/portocaliu_deschis"
         android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/tvIntrebare"
-        app:layout_constraintStart_toStartOf="@+id/tvIntrebare"
+        app:layout_constraintEnd_toEndOf="@+id/tvIntrebareLibera"
+        app:layout_constraintStart_toStartOf="@+id/tvIntrebareLibera"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

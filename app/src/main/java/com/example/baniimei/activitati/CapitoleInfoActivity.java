@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -21,7 +20,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.baniimei.R;
 import com.example.baniimei.clase.Capitol;
-import com.example.baniimei.clase.CapitolListaAdaptor;
+import com.example.baniimei.clase.ListaAdaptorInfo;
 import com.example.baniimei.clase.Informatie;
 import com.example.baniimei.clase.SunetFundalService;
 
@@ -29,9 +28,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 public class CapitoleInfoActivity extends AppCompatActivity {
 
@@ -43,26 +40,22 @@ public class CapitoleInfoActivity extends AppCompatActivity {
 
     private ArrayList<Capitol> listaCapitole;
     private ArrayList<Informatie> listaInformatii;
-    private CapitolListaAdaptor adapter;
+    private ListaAdaptorInfo adapter;
 
-    SharedPreferences preferinteMuzica;
     SharedPreferences.Editor sharedPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTheme(R.style.Theme_BaniiMei);
-        setContentView(R.layout.activity_capitoleinfo);
+        setContentView(R.layout.activity_capitole_info);
 
         // start initializari
-        listView = findViewById(R.id.listViewInfo);
+        listView = findViewById(R.id.listViewJoc);
 
         listaInformatii = new ArrayList<>();
         Intent intent = getIntent();
         listaCapitole = (ArrayList<Capitol>) intent.getSerializableExtra(MainActivity.INTENT_LIST);
-
-        preferinteMuzica = getSharedPreferences(getString(R.string.shprefs_numefisier), MODE_PRIVATE);
-        handleSunetFundal();
 
         // init item clickEvent pt adaptor
         listView.setOnItemClickListener(adapterItemClick());
@@ -73,16 +66,10 @@ public class CapitoleInfoActivity extends AppCompatActivity {
         }
 
         // init adaptor
-        adapter = new CapitolListaAdaptor(CapitoleInfoActivity.this, R.layout.forma_adaptor, listaCapitole);
+        adapter = new ListaAdaptorInfo(CapitoleInfoActivity.this, R.layout.forma_adaptor_info, listaCapitole);
         listView.setAdapter(adapter);
 
         getInfoDB();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        handleSunetFundal();
     }
 
     private AdapterView.OnItemClickListener adapterItemClick() {
@@ -144,31 +131,11 @@ public class CapitoleInfoActivity extends AppCompatActivity {
         Volley.newRequestQueue(this).add(request);
     }
 
-    private void handleSunetFundal() {
-        if (preferinteMuzica.getBoolean(getString(R.string.shprefs_muzica_key), true)) {
-            if (isMyServiceRunning(SunetFundalService.class)) {
-                stopService(new Intent(CapitoleInfoActivity.this, SunetFundalService.class));
-            } else {
-                startService(new Intent(CapitoleInfoActivity.this, SunetFundalService.class));
-            }
-        }
-    }
-
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && data != null) {
-            int indexActivare = Capitol.getNrActive();
+            int indexActivare = Capitol.getNrCapitoleActive();
             if (listaCapitole.get(indexActivare) != null) {
 
                 listaCapitole.get(indexActivare).activeaza();

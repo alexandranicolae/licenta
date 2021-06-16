@@ -1,9 +1,5 @@
 package com.example.baniimei.activitati;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,43 +9,57 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+
 import com.example.baniimei.R;
-import com.example.baniimei.clase.Capitol;
+import com.example.baniimei.clase.Categorie;
 import com.example.baniimei.clase.Chestionar;
-import com.example.baniimei.fragmente.IntrebareFragment;
+import com.example.baniimei.fragmente.IntrebareLiberaFragment;
+import com.example.baniimei.fragmente.IntrebareQuizFragment;
+import com.example.baniimei.fragmente.PuzzleFragment;
 
 import java.util.ArrayList;
 
-public class JocActivity extends AppCompatActivity implements IntrebareFragment.OnRadioGroupSelectedListener {
+public class JocActivity extends AppCompatActivity
+        implements IntrebareQuizFragment.OnRadioGroupSelectedListener, IntrebareLiberaFragment.OnMyEventListener {
 
-    private static MediaPlayer sunetJocIncheiat;
-    IntrebareFragment fragmentIntrb = new IntrebareFragment();
-
-    private ArrayList<Chestionar> listaChestionare;
-    private ArrayList<Capitol> listaCapitole;
-
-    static final String CODE_SCOR = "scor";
     public static final String TAG_CHESTIONAR = "chestionar";
+    static final String CODE_COMPLETATE = "complete";
+    static final String CODE_TOTALE = "totale";
+
+    private final int minusHint = 5;
+    private final int plusPct = 5;
+
+    private static MediaPlayer sunetJocIncheiat = null;
+    private static MediaPlayer sunetRspGresit = null;
+    private static MediaPlayer sunetRspCorect = null;
+
+    Fragment fragment = null;
+    Categorie categorie;
+    PuzzleFragment puzzleFragment = new PuzzleFragment();
+
+    int index;
 
     TextView scor;
     int punctaj;
-    Button btnHint;
-    Button btnNext;
-    Button btnBack;
-    int index;
-    String raspDat=null;
-    Intent intent;
 
+    ImageButton btnHint;
+    String raspDat = null;
+    Intent intent;
     Dialog templatePopup;
 
-    private static MediaPlayer sunetRspGresit=null;
-    private static MediaPlayer sunetRspCorect=null;
-
-    SharedPreferences preferinteSunet;
+    SharedPreferences preferinteSunet, prefScor;
     SharedPreferences.Editor sharedPrefsEditor;
+
+    private ArrayList<Chestionar> listaChestionare;
+
+    private Boolean aCerutHint = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,9 +68,7 @@ public class JocActivity extends AppCompatActivity implements IntrebareFragment.
         setContentView(R.layout.activity_joc);
 
         btnHint = findViewById(R.id.btnHint);
-        btnNext = findViewById(R.id.btnNext);
-        btnBack = findViewById(R.id.btnBack);
-        scor = findViewById(R.id.tvPuncte);
+        scor = findViewById(R.id.tvScor);
         sunetJocIncheiat = MediaPlayer.create(this, R.raw.success);
 
         preferinteSunet = getSharedPreferences(getString(R.string.shprefs_numefisier), MODE_PRIVATE);
@@ -69,54 +77,65 @@ public class JocActivity extends AppCompatActivity implements IntrebareFragment.
             sunetRspCorect = MediaPlayer.create(this, R.raw.corect);
         }
 
-        Intent intent1 = getIntent();
-        listaCapitole = (ArrayList<Capitol>) intent1.getSerializableExtra(MainActivity.INTENT_LIST);
+        intent = getIntent();
+        listaChestionare = (ArrayList<Chestionar>) intent.getSerializableExtra(CapitoleJocActivity.INTENT_INTREBARE);
+        categorie = (Categorie) intent.getSerializableExtra(CapitoleJocActivity.INTENT_CATEGORIE);
 
         index = 0;
 
-        btnNext.setOnClickListener(clickBtnNext());
         btnHint.setOnClickListener(clickBtnHint());
-        //btnBack.setOnClickListener(clickBtnBack());
+
+        prefScor = getSharedPreferences(getString(R.string.shprefs_scor_numefis), MODE_PRIVATE);
+        scor.setText(prefScor.getString(getString(R.string.shprefs_scor), "15"));
+        punctaj = Integer.parseInt(String.valueOf(scor.getText()));
+
+        if (categorie.equals(Categorie.PUZZLE)) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.container, puzzleFragment).commit();
+        } else {
+            schimbaFragment();
+        }
     }
 
     private View.OnClickListener clickBtnHint() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //sigur doriti?
-                AlertDialog.Builder builder = new AlertDialog.Builder(JocActivity.this);
-                builder.setMessage(R.string.dialog_hint);
-                builder.setCancelable(true);
-                builder.setPositiveButton(R.string.da, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // da-> are destule pct?
-                        if(punctaj>=2){
-                            //      da->popup mesaj + -2pct
-                            showMesajPopup(JocActivity.this, listaChestionare.get(index).getIndiciu(), getString(R.string.hint_title));
-                            scadePuncte();
+                if (!aCerutHint) {
+                    //sigur doriti?
+                    AlertDialog.Builder builder = new AlertDialog.Builder(JocActivity.this);
+                    builder.setMessage(R.string.dialog_hint);
+                    builder.setCancelable(true);
+                    builder.setPositiveButton(R.string.da, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (punctaj >= minusHint) {
+                                //      da->popup mesaj + -pct
+                                showMesajPopup(JocActivity.this, listaChestionare.get(index).getIndiciu(), getString(R.string.hint_title));
+                                scadePuncte();
+                            } else {
+                                //      nu->toast
+                                Toast.makeText(getApplicationContext(), "Fonduri insuficiente!", Toast.LENGTH_LONG).show();
+                            }
+                            dialog.cancel();
+                            aCerutHint = true;
                         }
-                        else {
-                            //      nu->toast
-                            Toast.makeText(getApplicationContext(), "Fonduri insuficiente! Nu ai destui banuti!", Toast.LENGTH_LONG).show();
+                    });
+                    builder.setNegativeButton(R.string.nu, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
                         }
-                        dialog.cancel();
-                    }
-                });
-                builder.setNegativeButton(R.string.nu, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
-
+                    });
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
+                } else {
+                    showMesajPopup(JocActivity.this, listaChestionare.get(index).getIndiciu(), getString(R.string.hint_title));
+                }
             }
         };
     }
 
-    private View.OnClickListener clickBtnNext(){
+    private View.OnClickListener clickBtnNext() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -177,70 +196,76 @@ public class JocActivity extends AppCompatActivity implements IntrebareFragment.
         };
     }
 
-    private void schimbaFragment(int index, Fragment fragment) {
+    private void schimbaFragment() {
+        if (fragment != null)
+            getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+
+        if (listaChestionare.get(index).getRaspunsuri().isEmpty()) {
+            fragment = new IntrebareLiberaFragment();
+        } else {
+            fragment = new IntrebareQuizFragment();
+        }
         Bundle b = new Bundle();
         b.putSerializable(TAG_CHESTIONAR, listaChestionare.get(index));
         fragment.setArguments(b);
 
+
         getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
-//        if(fragment instanceof IntrebareFragment){
-//            fragmentIntrb.resetRgRasp();
-//        }
     }
 
     private void adaugaPuncte() {
-        punctaj+=5;
-        String puncte=String.valueOf(punctaj);
+        punctaj += plusPct;
+        String puncte = String.valueOf(punctaj);
         scor.setText(puncte);
         salveazaScor(puncte);
     }
 
     private void scadePuncte() {
-        punctaj-=2;
-        String puncte= String.valueOf(punctaj);
+        punctaj -= minusHint;
+        String puncte = String.valueOf(punctaj);
         scor.setText(puncte);
         salveazaScor(puncte);
     }
 
-    private void salveazaScor(String puncte){
+    private void salveazaScor(String puncte) {
         sharedPrefsEditor = getSharedPreferences(getString(R.string.shprefs_scor_numefis), MODE_PRIVATE).edit();
-        sharedPrefsEditor.putString(getString(R.string.shprefs_scor),puncte);
+        sharedPrefsEditor.putString(getString(R.string.shprefs_scor), puncte);
         sharedPrefsEditor.apply();
     }
 
-    public void showMesajPopup(Context context, String mesaj, String... args){
+    public void showMesajPopup(Context context, String mesaj, String... args) {
         TextView btnX;
         TextView tvMesaj;
         TextView tvTitlu;
         Button btn;
 
-        templatePopup =new Dialog(context);
+        templatePopup = new Dialog(context);
 
-        String titluPopup=null;
-        if(args.length == 1) {
+        String titluPopup = null;
+        if (args.length == 1) {
             titluPopup = args[0];
         }
 
         templatePopup.setContentView(R.layout.template_popup);
-        btnX= templatePopup.findViewById(R.id.tvX);
-        tvMesaj= templatePopup.findViewById(R.id.tvMesaj);
-        btn= templatePopup.findViewById(R.id.btnMaiDeparte);
-        tvTitlu=templatePopup.findViewById(R.id.tvTitlu);
+        btnX = templatePopup.findViewById(R.id.tvX);
+        tvMesaj = templatePopup.findViewById(R.id.tvMesaj);
+        btn = templatePopup.findViewById(R.id.btnMaiDeparte);
+        tvTitlu = templatePopup.findViewById(R.id.tvTitlu);
 
-        if(titluPopup!=null){
+        if (titluPopup != null) {
             tvTitlu.setText(titluPopup);
         }
 
-        if(args.length == 2) {
+        if (args.length == 2) {
             btn.setText(args[1]);
         }
 
         tvMesaj.setText(mesaj);
 
-        if(context.getString(R.string.msj_nivelincheiat).equals(mesaj)) {
+        if (context.getString(R.string.msj_nivelincheiat).equals(mesaj)) {
             btnX.setOnClickListener(clickFelicitariPopupFinish());
             btn.setOnClickListener(clickFelicitariPopupFinish());
-        }else{
+        } else {
             btnX.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -262,15 +287,58 @@ public class JocActivity extends AppCompatActivity implements IntrebareFragment.
             @Override
             public void onClick(View v) {
                 templatePopup.dismiss();
-                intent.putExtra(CODE_SCOR, punctaj);
-                setResult(RESULT_OK,intent);
+
+                //todo pune in sharedprefs pe astea
+                intent.putExtra(CODE_TOTALE, listaChestionare.size());
+                intent.putExtra(CODE_COMPLETATE, index);
+
+                setResult(RESULT_OK, intent);
                 finish();
             }
         };
     }
 
+    public void handleRaspuns(String value) {
+        raspDat = value;
+        //
+        //todo reseteaza timp
+
+        index++;
+        //e corect? ne asiguram ca rasp dat de la tastatura e ok si el
+        if (listaChestionare.get(index - 1).getRaspunsCorect().toUpperCase().replaceAll("\\s", "")
+                .equals(raspDat.toUpperCase().replaceAll("\\s", ""))) {
+
+            if (sunetRspCorect != null) {
+                sunetRspCorect.start();
+            }
+            if (!aCerutHint)
+                adaugaPuncte();
+
+        } else {
+            // nu-> sunet + next fara puncte :(
+            if (sunetRspGresit != null) {
+                sunetRspGresit.start();
+            }
+        }
+        // s-a terminat?
+        if (index < listaChestionare.size()) {
+            // nu->next intreb
+            schimbaFragment();
+        } else {
+            // da->mesaj felicitari popup+ inapoi la capitol(+send score si activeaza next)
+            showMesajPopup(JocActivity.this, getString(R.string.msj_nivelincheiat));
+        }
+
+        aCerutHint = false;
+    }
+
     @Override
-    public void onButtonSelected(String value) {
-        raspDat=value;
+    public void onButtonSelected(String s) {
+        handleRaspuns(s);
+    }
+
+    @Override
+    public void trimiteEventRezultat(String s) {
+        handleRaspuns(s);
     }
 }

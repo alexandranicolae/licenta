@@ -1,8 +1,10 @@
 package com.example.baniimei.fragmente;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -20,9 +22,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class IntrebareFragment extends Fragment {
+public class IntrebareQuizFragment extends Fragment {
 
-    public IntrebareFragment() {
+    public IntrebareQuizFragment() {
         // Required empty public constructor
     }
 
@@ -31,10 +33,6 @@ public class IntrebareFragment extends Fragment {
     Chestionar chestionar;
     List<String> listarasp;
     int nrRasp;
-
-//    public void resetRgRasp() {
-//        this.rgRasp.setSelected(false);
-//    }
 
     public interface OnRadioGroupSelectedListener {
         void onButtonSelected(String value);
@@ -50,20 +48,22 @@ public class IntrebareFragment extends Fragment {
         try {
             mCallback = (OnRadioGroupSelectedListener) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnRadioGroupSelectedListener");
+            throw new ClassCastException(activity.toString() + "must implement OnRadioGroupSelectedListener");
         }
     }
+
+    View view;
+    int corectCheckedId = -1;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view= inflater.inflate(R.layout.fragment_intrebare, container, false);
+        view = inflater.inflate(R.layout.fragment_intrebare_quiz, container, false);
 
-        intrebare=view.findViewById(R.id.tvIntrebare);
-        rgRasp= view.findViewById(R.id.rgRaspunsuri);
+        intrebare = view.findViewById(R.id.tvIntrebareLibera);
+        rgRasp = view.findViewById(R.id.rgRaspunsuri);
 
-        Bundle bundle=getArguments();
+        Bundle bundle = getArguments();
         if (bundle != null) {
             chestionar = (Chestionar) bundle.getSerializable(JocActivity.TAG_CHESTIONAR);
         }
@@ -79,23 +79,29 @@ public class IntrebareFragment extends Fragment {
         listarasp.addAll(chestionar.getRaspunsuri());
         Collections.shuffle(listarasp);
 
-
-//        RadioButton rbInv=new RadioButton(view.getContext());
-//        rbInv.setChecked(true);
-//        rbInv.setVisibility(View.INVISIBLE);
-//        rgRasp.addView(rbInv);
         for (int i=0;i<nrRasp;i++) {
             RadioButton raspuns = new RadioButton(view.getContext());
             raspuns.setChecked(false);
-            raspuns.setId(i+100);
+            raspuns.setId(i + 100);
             raspuns.setText(listarasp.get(i));
+            if (listarasp.get(i).equals(chestionar.getRaspunsCorect())) {
+                corectCheckedId = i + 100;
+            }
             rgRasp.addView(raspuns);
         }
-        rgRasp.clearCheck();
 
         rgRasp.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @SuppressLint("ResourceAsColor")
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton radioButton = group.findViewById(checkedId);
+                if (!chestionar.getRaspunsCorect().equals((String) radioButton.getText())) {
+                    radioButton.setBackground(AppCompatResources.getDrawable(view.getContext(), R.color.design_default_color_error));
+                    RadioButton rbCorect = group.findViewById(corectCheckedId);
+                    rbCorect.setBackground(AppCompatResources.getDrawable(view.getContext(), R.color.grn));
+                } else {
+                    radioButton.setBackground(AppCompatResources.getDrawable(view.getContext(), R.color.grn));
+                }
+
                 mCallback.onButtonSelected((String) radioButton.getText());
             }
         });

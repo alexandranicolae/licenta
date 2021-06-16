@@ -5,18 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/fundal"
-    tools:context=".activitati.JocActivity">
-
-    <ImageButton
-        android:id="@+id/btnHint"
-        android:layout_width="47dp"
-        android:layout_height="38dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/forma_buton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
-        app:srcCompat="@android:drawable/ic_menu_search" />
+    tools:context=".activitati.CapitoleJocActivity">
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -25,16 +14,29 @@
         android:background="@color/purple_finchis"
         android:orientation="horizontal"
         android:padding="8dp"
-        android:weightSum="7"
+        android:weightSum="100"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/imageButton"
+            android:layout_width="30dp"
+            android:layout_height="37dp"
+            android:layout_weight="10"
+            android:background="#00FFFFFF"
+            app:srcCompat="@drawable/spinwheelsvg" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="30" />
 
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="30dp"
             android:layout_height="37dp"
-            android:layout_weight="1"
+            android:layout_weight="10"
             android:contentDescription="@string/contdesc_moneda"
             app:srcCompat="@drawable/ic_icon_100" />
 
@@ -42,7 +44,7 @@
             android:id="@+id/tvScor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="10"
             android:fontFamily="casual"
             android:gravity="fill_vertical"
             android:text="@string/default_money"
@@ -53,37 +55,25 @@
         <Space
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_weight="30" />
 
-        <TextView
-            android:id="@+id/tvTimp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:fontFamily="casual"
-            android:gravity="fill_vertical"
-            android:text="60/60"
-            android:textColor="@color/white"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
-        <Space
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="3" />
+        <ImageButton
+            android:id="@+id/imageButton2"
+            android:layout_width="30dp"
+            android:layout_height="37dp"
+            android:layout_weight="10"
+            android:background="#00FFFFFF"
+            app:srcCompat="@drawable/shop" />
 
     </LinearLayout>
 
-    <FrameLayout
-        android:id="@+id/container"
+    <ListView
+        android:id="@+id/listViewJoc"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnHint">
-
-    </FrameLayout>
-
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 </androidx.constraintlayout.widget.ConstraintLayout>

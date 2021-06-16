@@ -27,7 +27,7 @@ public class SunetFundalService extends Service {
         // Setam reluarea melodiei:
         mediaPlayer.setLooping(true);
         // volum mic pt ca este de fundal
-        mediaPlayer.setVolume(50, 50);
+        mediaPlayer.setVolume(30, 30);
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
