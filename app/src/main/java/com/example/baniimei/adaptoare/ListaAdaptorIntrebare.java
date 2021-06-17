@@ -1,4 +1,4 @@
-package com.example.baniimei.clase;
+package com.example.baniimei.adaptoare;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.baniimei.R;
+import com.example.baniimei.clase.Capitol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class ListaAdaptorIntrebare extends ArrayAdapter<Capitol> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-        Capitol capitol = (Capitol) capitols.get(position);
+        Capitol capitol = capitols.get(position);
         LayoutInflater inflater = LayoutInflater.from(context);
         convertView = inflater.inflate(resource, parent, false);
 

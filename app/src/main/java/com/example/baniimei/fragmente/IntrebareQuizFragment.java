@@ -60,7 +60,7 @@ public class IntrebareQuizFragment extends Fragment {
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_intrebare_quiz, container, false);
 
-        intrebare = view.findViewById(R.id.tvIntrebareLibera);
+        intrebare = view.findViewById(R.id.tvIntrebareQuiz);
         rgRasp = view.findViewById(R.id.rgRaspunsuri);
 
         Bundle bundle = getArguments();
@@ -94,7 +94,7 @@ public class IntrebareQuizFragment extends Fragment {
             @SuppressLint("ResourceAsColor")
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton radioButton = group.findViewById(checkedId);
-                if (!chestionar.getRaspunsCorect().equals((String) radioButton.getText())) {
+                if (!chestionar.getRaspunsCorect().equals(radioButton.getText())) {
                     radioButton.setBackground(AppCompatResources.getDrawable(view.getContext(), R.color.design_default_color_error));
                     RadioButton rbCorect = group.findViewById(corectCheckedId);
                     rbCorect.setBackground(AppCompatResources.getDrawable(view.getContext(), R.color.grn));

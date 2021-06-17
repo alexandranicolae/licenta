@@ -22,12 +22,12 @@ import com.example.baniimei.clase.Categorie;
 import com.example.baniimei.clase.Chestionar;
 import com.example.baniimei.fragmente.IntrebareLiberaFragment;
 import com.example.baniimei.fragmente.IntrebareQuizFragment;
-import com.example.baniimei.fragmente.PuzzleFragment;
 
 import java.util.ArrayList;
 
 public class JocActivity extends AppCompatActivity
-        implements IntrebareQuizFragment.OnRadioGroupSelectedListener, IntrebareLiberaFragment.OnMyEventListener {
+        implements IntrebareQuizFragment.OnRadioGroupSelectedListener,
+        IntrebareLiberaFragment.OnMyEventListener {
 
     public static final String TAG_CHESTIONAR = "chestionar";
     static final String CODE_COMPLETATE = "complete";
@@ -42,7 +42,6 @@ public class JocActivity extends AppCompatActivity
 
     Fragment fragment = null;
     Categorie categorie;
-    PuzzleFragment puzzleFragment = new PuzzleFragment();
 
     int index;
 
@@ -68,7 +67,7 @@ public class JocActivity extends AppCompatActivity
         setContentView(R.layout.activity_joc);
 
         btnHint = findViewById(R.id.btnHint);
-        scor = findViewById(R.id.tvScor);
+        scor = findViewById(R.id.tvScorJoc);
         sunetJocIncheiat = MediaPlayer.create(this, R.raw.success);
 
         preferinteSunet = getSharedPreferences(getString(R.string.shprefs_numefisier), MODE_PRIVATE);
@@ -89,11 +88,7 @@ public class JocActivity extends AppCompatActivity
         scor.setText(prefScor.getString(getString(R.string.shprefs_scor), "15"));
         punctaj = Integer.parseInt(String.valueOf(scor.getText()));
 
-        if (categorie.equals(Categorie.PUZZLE)) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.container, puzzleFragment).commit();
-        } else {
-            schimbaFragment();
-        }
+        schimbaFragment();
     }
 
     private View.OnClickListener clickBtnHint() {

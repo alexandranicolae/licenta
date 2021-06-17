@@ -3,8 +3,6 @@ package com.example.baniimei.activitati;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.ActivityManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -20,9 +18,8 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.baniimei.R;
 import com.example.baniimei.clase.Capitol;
-import com.example.baniimei.clase.ListaAdaptorInfo;
+import com.example.baniimei.adaptoare.ListaAdaptorInfo;
 import com.example.baniimei.clase.Informatie;
-import com.example.baniimei.clase.SunetFundalService;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,7 +48,7 @@ public class CapitoleInfoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_capitole_info);
 
         // start initializari
-        listView = findViewById(R.id.listViewJoc);
+        listView = findViewById(R.id.listViewInfo);
 
         listaInformatii = new ArrayList<>();
         Intent intent = getIntent();

@@ -39,7 +39,7 @@
             app:srcCompat="@drawable/ic_icon_100" />
 
         <TextView
-            android:id="@+id/tvScor"
+            android:id="@+id/tvScorJoc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"

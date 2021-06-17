@@ -7,7 +7,7 @@
     tools:context=".fragmente.IntrebareQuizFragment">
 
     <TextView
-        android:id="@+id/tvIntrebareLibera"
+        android:id="@+id/tvIntrebareQuiz"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"

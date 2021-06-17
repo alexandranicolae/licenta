@@ -1,10 +1,13 @@
 package com.example.baniimei.activitati;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 
 import android.app.ActivityManager;
 import android.app.AlarmManager;
+import android.app.Dialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -16,6 +19,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -25,8 +30,16 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.baniimei.R;
 import com.example.baniimei.clase.Capitol;
+import com.example.baniimei.clase.DAOUser;
 import com.example.baniimei.clase.Notificare;
 import com.example.baniimei.clase.SunetFundalService;
+import com.example.baniimei.clase.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,6 +50,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     private static final String DB_URL_CAPITOL = "http://192.168.0.216/DB_licenta/SelectCapitol.php";
+    static final String DB_URL_NUME = "baniimei-a9176-default-rtdb";
     protected static final String INTENT_LIST = "List";
 
     private Button btnSetari;
@@ -47,6 +61,11 @@ public class MainActivity extends AppCompatActivity {
 
     SharedPreferences preferinteMuzica;
     SharedPreferences shNotificari;
+    SharedPreferences sharedPrefsNume;
+
+    Dialog numePopup;
+
+    DAOUser dbUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         btnInformatii.setOnClickListener(informatiiClick());
 
         listaCapitole = new ArrayList<>();
+        dbUser = new DAOUser();
 
         preferinteMuzica = getSharedPreferences(getString(R.string.shprefs_numefisier), MODE_PRIVATE);
         handleSunetFundal();
@@ -76,7 +96,60 @@ public class MainActivity extends AppCompatActivity {
             alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis() + 1000 * 10, AlarmManager.INTERVAL_DAY, pendingIntent);
         }
 
+        sharedPrefsNume = getSharedPreferences("DATE_USER", MODE_PRIVATE);
+        String nume = sharedPrefsNume.getString("ID_USER", "");
+        if (nume.equals("") || nume == null) {
+            requireNume();
+        }
+
         getCaptioleDB();
+    }
+
+    private void requireNume() {
+        EditText etNume;
+        TextView tvEroare;
+        Button btn;
+
+        numePopup = new Dialog(MainActivity.this);
+        numePopup.setCanceledOnTouchOutside(false);
+
+        numePopup.setContentView(R.layout.nume_popup);
+        etNume = numePopup.findViewById(R.id.etNume);
+        tvEroare = numePopup.findViewById(R.id.tvEroareNume);
+        btn = numePopup.findViewById(R.id.btnOkNume);
+
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String input = etNume.getText().toString();
+
+                if (input.isEmpty() || input.length() < 3) {
+                    etNume.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.red, null));
+                    tvEroare.setVisibility(View.VISIBLE);
+                } else {
+                    User user = new User(input);
+                    dbUser.add(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(MainActivity.this, "Bine ai venit, " + user.getNume() + "!", Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(MainActivity.this, "EROARE BAZA DE DATE!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                    SharedPreferences.Editor sharedPrefsEditor = getSharedPreferences("DATE_USER", MODE_PRIVATE).edit();
+                    sharedPrefsEditor.putString("ID_USER", dbUser.getDatabaseReference().getKey());
+                    sharedPrefsEditor.apply();
+
+                    numePopup.dismiss();
+                }
+            }
+        });
+
+        numePopup.show();
     }
 
     private void init() {

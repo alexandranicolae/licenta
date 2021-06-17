@@ -20,7 +20,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
-            android:id="@+id/imageButton"
+            android:id="@+id/ibRoata"
             android:layout_width="30dp"
             android:layout_height="37dp"
             android:layout_weight="10"
@@ -41,7 +41,7 @@
             app:srcCompat="@drawable/ic_icon_100" />
 
         <TextView
-            android:id="@+id/tvScor"
+            android:id="@+id/tvScorCapitoleJoc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="10"
@@ -55,10 +55,18 @@
         <Space
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="30" />
+            android:layout_weight="20" />
 
         <ImageButton
-            android:id="@+id/imageButton2"
+            android:id="@+id/ibClasament"
+            android:layout_width="30dp"
+            android:layout_height="37dp"
+            android:layout_weight="10"
+            android:background="#00FFFFFF"
+            app:srcCompat="@drawable/leaderboard" />
+
+        <ImageButton
+            android:id="@+id/ibMagazin"
             android:layout_width="30dp"
             android:layout_height="37dp"
             android:layout_weight="10"
@@ -71,9 +79,10 @@
         android:id="@+id/listViewJoc"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
