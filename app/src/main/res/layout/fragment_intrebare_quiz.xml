@@ -36,8 +36,8 @@
         android:background="@color/portocaliu_deschis"
         android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/tvIntrebareLibera"
-        app:layout_constraintStart_toStartOf="@+id/tvIntrebareLibera"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

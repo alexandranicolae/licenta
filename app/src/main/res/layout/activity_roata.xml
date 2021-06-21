@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/fundal"
     android:theme="@style/Theme.BaniiMei"
-    tools:context=".activitati.RoataActivity">
+    tools:context=".activitati.RuletaActivity">
 
     <com.bluehomestudio.luckywheel.LuckyWheel
         android:id="@+id/roata"

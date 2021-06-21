@@ -5,24 +5,19 @@ import java.io.Serializable;
 public class Capitol implements Serializable {
 
     private int id;
-    private String numeCapitol;
+    private final String numeCapitol;
+
     private boolean eActiv;
-
     private static int nrCapitoleActive;
-    private Categorie categorie;
+    private Dificultate dificultate;
 
-    private int nrChTotale;
-    private int nrChCompletate;
-
-    public Capitol(int id, String numeCapitol) {
+    public Capitol(int id, String numeCapitol, Dificultate dificultate) {
         this.id = id;
         this.numeCapitol = numeCapitol;
+
         this.eActiv = false;
         nrCapitoleActive = 0;
-        this.categorie = Categorie.CHESTIONAR;
-
-        this.nrChTotale = 0;
-        this.nrChCompletate = 0;
+        this.dificultate = dificultate;
     }
 
     public String getNumeCapitol() {
@@ -35,10 +30,6 @@ public class Capitol implements Serializable {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public void setNumeCapitol(String numeCapitol) {
-        this.numeCapitol = numeCapitol;
     }
 
     public boolean isActiv() {
@@ -64,28 +55,11 @@ public class Capitol implements Serializable {
         Capitol.nrCapitoleActive = nrCapitoleActive;
     }
 
-    public Categorie getCategorie() {
-        return categorie;
+    public Dificultate getDificultate() {
+        return dificultate;
     }
 
-    public void setCategorie(Categorie categorie) {
-        this.categorie = categorie;
-    }
-
-
-    public int getNrChTotale() {
-        return nrChTotale;
-    }
-
-    public void setNrChTotale(int nrChTotale) {
-        this.nrChTotale = nrChTotale;
-    }
-
-    public int getNrChCompletate() {
-        return nrChCompletate;
-    }
-
-    public void setNrChCompletate(int nrChCompletate) {
-        this.nrChCompletate = nrChCompletate;
+    public void setDificultate(Dificultate dificultate) {
+        this.dificultate = dificultate;
     }
 }

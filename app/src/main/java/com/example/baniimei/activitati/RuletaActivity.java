@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class RoataActivity extends AppCompatActivity {
+public class RuletaActivity extends AppCompatActivity {
 
     static final String INTENT_PUNCTE = "puncte_roata";
 
@@ -71,7 +71,7 @@ public class RoataActivity extends AppCompatActivity {
         TextView tvTitlu;
         Button btn;
 
-        templatePopup = new Dialog(RoataActivity.this);
+        templatePopup = new Dialog(RuletaActivity.this);
         templatePopup.setCanceledOnTouchOutside(false);
 
         templatePopup.setContentView(R.layout.template_popup);
@@ -94,7 +94,7 @@ public class RoataActivity extends AppCompatActivity {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(RoataActivity.this, puncteCastigate, Toast.LENGTH_LONG).show();
+                Toast.makeText(RuletaActivity.this, puncteCastigate, Toast.LENGTH_LONG).show();
                 intent.putExtra(INTENT_PUNCTE, Integer.parseInt(puncteCastigate));
                 setResult(RESULT_OK, intent);
 

@@ -31,6 +31,7 @@ import com.android.volley.toolbox.Volley;
 import com.example.baniimei.R;
 import com.example.baniimei.clase.Capitol;
 import com.example.baniimei.clase.DAOUser;
+import com.example.baniimei.clase.Dificultate;
 import com.example.baniimei.clase.Notificare;
 import com.example.baniimei.clase.SunetFundalService;
 import com.example.baniimei.clase.User;
@@ -49,8 +50,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String DB_URL_CAPITOL = "http://192.168.0.216/DB_licenta/SelectCapitol.php";
-    static final String DB_URL_NUME = "baniimei-a9176-default-rtdb";
+    private static final String DB_URL_CAPITOL = "http://alexandral.bestconstruct.ro//SelectCapitol.php";
     protected static final String INTENT_LIST = "List";
 
     private Button btnSetari;
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
     Dialog numePopup;
 
-    DAOUser dbUser;
+    private DAOUser dbUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,8 +97,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         sharedPrefsNume = getSharedPreferences("DATE_USER", MODE_PRIVATE);
-        String nume = sharedPrefsNume.getString("ID_USER", "");
-        if (nume.equals("") || nume == null) {
+        String idUser = sharedPrefsNume.getString("ID_USER", "");
+        if (idUser.equals("") || idUser == null) {
             requireNume();
         }
 
@@ -128,7 +128,8 @@ public class MainActivity extends AppCompatActivity {
                     tvEroare.setVisibility(View.VISIBLE);
                 } else {
                     User user = new User(input);
-                    dbUser.add(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    String cheie = dbUser.getDatabaseReference().push().getKey();
+                    dbUser.getDatabaseReference().child(cheie).setValue(user).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             Toast.makeText(MainActivity.this, "Bine ai venit, " + user.getNume() + "!", Toast.LENGTH_SHORT).show();
@@ -141,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
                     });
 
                     SharedPreferences.Editor sharedPrefsEditor = getSharedPreferences("DATE_USER", MODE_PRIVATE).edit();
-                    sharedPrefsEditor.putString("ID_USER", dbUser.getDatabaseReference().getKey());
+                    sharedPrefsEditor.putString("ID_USER", cheie);
                     sharedPrefsEditor.apply();
 
                     numePopup.dismiss();
@@ -266,7 +267,8 @@ public class MainActivity extends AppCompatActivity {
 
                             int id = obiect.getInt("idCapitol");
                             String titlu = obiect.getString("numeCapitol");
-                            Capitol capitol = new Capitol(id, titlu);
+                            Dificultate dificultate = Dificultate.valueOf(obiect.getString("dificultate").toUpperCase());
+                            Capitol capitol = new Capitol(id, titlu, dificultate);
                             listaCapitole.add(capitol);
                         }
                         listaCapitole.get(0).activeaza();

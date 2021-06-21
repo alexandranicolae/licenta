@@ -1,5 +1,6 @@
 package com.example.baniimei.activitati;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,6 +9,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -20,12 +22,13 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.baniimei.R;
 import com.example.baniimei.clase.Capitol;
-import com.example.baniimei.clase.Categorie;
 import com.example.baniimei.clase.Chestionar;
 import com.example.baniimei.adaptoare.ListaAdaptorIntrebare;
 import com.example.baniimei.clase.DAOUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,13 +36,12 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 public class CapitoleJocActivity extends AppCompatActivity {
 
-    private static final String DB_URL_INTREBARE = "http://192.168.0.216/DB_licenta/SelectIntrebare.php";
+    private static final String DB_URL_INTREBARE = "http://alexandral.bestconstruct.ro/SelectIntrebare.php";
     private static final int NR_INTR_RANDOM = 5;
     private static final int REQUEST_CODE_OK = 300;
     private static final int REQUEST_CODE_OK_ROATA = 400;
@@ -48,14 +50,15 @@ public class CapitoleJocActivity extends AppCompatActivity {
 
     private ListView listView;
     private TextView scor;
-    private ImageButton btnRoata, btnMagazin, btnClasament;
+    private Button btnRandom;
+    private ImageButton btnRoata, btnClasament;
 
     private ArrayList<Capitol> listaCapitole;
     private ArrayList<Chestionar> listaIntrebari;
     private ListaAdaptorIntrebare adapter;
 
-    SharedPreferences prefScor;
-    SharedPreferences.Editor sharedPrefsEditor;
+    SharedPreferences prefUser;
+    private String userKey = "";
 
     private int pozUltimAccesat = -1;
 
@@ -70,35 +73,53 @@ public class CapitoleJocActivity extends AppCompatActivity {
         listView = findViewById(R.id.listViewJoc);
         scor = findViewById(R.id.tvScorCapitoleJoc);
         btnRoata = findViewById(R.id.ibRoata);
-        btnMagazin = findViewById(R.id.ibMagazin);
+        btnRandom = findViewById(R.id.btnRandom);
         btnClasament = findViewById(R.id.ibClasament);
 
         listaIntrebari = new ArrayList<>();
         Intent intent = getIntent();
         listaCapitole = (ArrayList<Capitol>) intent.getSerializableExtra(MainActivity.INTENT_LIST);
 
-        Capitol capitol = new Capitol(0, "Random");
-        capitol.setCategorie(Categorie.RANDOM);
-        listaCapitole.add(0, capitol);
-
-        prefScor = getSharedPreferences(getString(R.string.shprefs_scor_numefis), MODE_PRIVATE);
-
+        //prefScor = getSharedPreferences(getString(R.string.shprefs_scor_numefis), MODE_PRIVATE);
+        prefUser = getSharedPreferences("DATE_USER", MODE_PRIVATE);
+        userKey = prefUser.getString("ID_USER", "");
         daoUser = new DAOUser();
+
+        setScorDB();
+        //scor.setText(daoUser.getScor(userKey));
+
         // init adaptor
         listView.setOnItemClickListener(adapterItemClick());
         adapter = new ListaAdaptorIntrebare(CapitoleJocActivity.this, R.layout.forma_adaptor_joc, listaCapitole);
         listView.setAdapter(adapter);
 
         btnRoata.setOnClickListener(clickRoata());
-        btnMagazin.setOnClickListener(clickMagazin());
         btnClasament.setOnClickListener(clickClasament());
+        btnRandom.setOnClickListener(clickRandom());
         getIntrebariDB();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        scor.setText(prefScor.getString(getString(R.string.shprefs_scor), "15"));
+        setScorDB();
+        //scor.setText(daoUser.getScor(userKey));
+    }
+
+    public void setScorDB() {
+        DatabaseReference dbref = daoUser.getDatabaseReference().child(userKey).child("scor");
+        dbref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                scor.setText(snapshot.getValue(String.class));
+                System.out.println("E OK!!");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                System.out.println("failed" + error.getMessage());
+            }
+        });
     }
 
     private AdapterView.OnItemClickListener adapterItemClick() {
@@ -108,7 +129,6 @@ public class CapitoleJocActivity extends AppCompatActivity {
                 // start JocActivity
                 // trimite lista intrebari corespunzatoare capitolului
                 Capitol capitol = listaCapitole.get(position);
-
                 pozUltimAccesat = position;
 
                 Intent intent = new Intent(CapitoleJocActivity.this, JocActivity.class);
@@ -116,29 +136,36 @@ public class CapitoleJocActivity extends AppCompatActivity {
 
                 Collections.shuffle(listaIntrebari);
 
-                switch (capitol.getCategorie()) {
-                    case CHESTIONAR: {
-                        int i = 0;
-                        for (Chestionar c : listaIntrebari) {
-                            if (i == NR_INTR_RANDOM) {
-                                break;
-                            }
-                            if (c.getIdCapitol() == capitol.getId()) {
-                                temp.add(c);
-                                i++;
-                            }
-                        }
+                int i = 0;
+                for (Chestionar c : listaIntrebari) {
+                    if (i == NR_INTR_RANDOM) {
                         break;
                     }
-                    case RANDOM: {
-                        for (int i = 0; i < NR_INTR_RANDOM; i++) {
-                            temp.add(listaIntrebari.get(i));
-                        }
-                        break;
+                    if (c.getIdCapitol() == capitol.getId()) {
+                        temp.add(c);
+                        i++;
                     }
                 }
+
                 intent.putExtra(INTENT_INTREBARE, temp);
-                intent.putExtra(INTENT_CATEGORIE, capitol.getCategorie());
+                startActivityForResult(intent, REQUEST_CODE_OK);
+            }
+        };
+    }
+
+    private View.OnClickListener clickRandom() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CapitoleJocActivity.this, JocActivity.class);
+                ArrayList<Chestionar> temp = new ArrayList<>();
+
+                Collections.shuffle(listaIntrebari);
+                for (int i = 0; i < NR_INTR_RANDOM; i++) {
+                    temp.add(listaIntrebari.get(i));
+                }
+
+                intent.putExtra(INTENT_INTREBARE, temp);
                 startActivityForResult(intent, REQUEST_CODE_OK);
             }
         };
@@ -154,20 +181,11 @@ public class CapitoleJocActivity extends AppCompatActivity {
         };
     }
 
-    private View.OnClickListener clickMagazin() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        };
-    }
-
     private View.OnClickListener clickRoata() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(CapitoleJocActivity.this, RoataActivity.class);
+                Intent intent = new Intent(CapitoleJocActivity.this, RuletaActivity.class);
                 startActivityForResult(intent, REQUEST_CODE_OK_ROATA);
             }
         };
@@ -223,23 +241,21 @@ public class CapitoleJocActivity extends AppCompatActivity {
             int nrCompletate = (int) b.getSerializable(JocActivity.CODE_COMPLETATE);
             int nrTotale = (int) b.getSerializable(JocActivity.CODE_TOTALE);
 
-            listaCapitole.get(pozUltimAccesat).setNrChCompletate(nrCompletate);
-            listaCapitole.get(pozUltimAccesat).setNrChTotale(nrTotale);
+            //listaCapitole.get(pozUltimAccesat).setNrChCompletate(nrCompletate);
+            //listaCapitole.get(pozUltimAccesat).setNrChTotale(nrTotale);
 
-            scor.setText(prefScor.getString(getString(R.string.shprefs_scor), "15"));
+            setScorDB();
+            //scor.setText(daoUser.getScor(userKey));
         }
 
         if (requestCode == REQUEST_CODE_OK_ROATA && resultCode == RESULT_OK && data != null) {
             Bundle b = data.getExtras();
-            int puncteCastigate = (int) b.getSerializable(RoataActivity.INTENT_PUNCTE);
+            int puncteCastigate = (int) b.getSerializable(RuletaActivity.INTENT_PUNCTE);
 
-            int puncteBefore = Integer.parseInt(String.valueOf(scor.getText()));
-            int scorNou = puncteCastigate + puncteBefore;
-            scor.setText(String.valueOf(scorNou));
-
-            sharedPrefsEditor = getSharedPreferences(getString(R.string.shprefs_scor_numefis), MODE_PRIVATE).edit();
-            sharedPrefsEditor.putString(getString(R.string.shprefs_scor), String.valueOf(scor.getText()));
-            sharedPrefsEditor.apply();
+            int scorDB = Integer.parseInt((String) scor.getText());
+            int scorNou = puncteCastigate + scorDB;
+            daoUser.updateScor(userKey, String.valueOf(scorNou));
+            setScorDB();
         }
     }
 }

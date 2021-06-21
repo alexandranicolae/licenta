@@ -55,7 +55,7 @@
         <Space
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="20" />
+            android:layout_weight="30" />
 
         <ImageButton
             android:id="@+id/ibClasament"
@@ -65,24 +65,26 @@
             android:background="#00FFFFFF"
             app:srcCompat="@drawable/leaderboard" />
 
-        <ImageButton
-            android:id="@+id/ibMagazin"
-            android:layout_width="30dp"
-            android:layout_height="37dp"
-            android:layout_weight="10"
-            android:background="#00FFFFFF"
-            app:srcCompat="@drawable/shop" />
-
     </LinearLayout>
 
     <ListView
         android:id="@+id/listViewJoc"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+
+    <Button
+        android:id="@+id/btnRandom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/forma_buton"
+        android:text="Genereaza Intrebari Aleatoare"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

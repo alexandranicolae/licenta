@@ -22,7 +22,6 @@ public class ListaAdaptorClasament extends ArrayAdapter<User> {
     private final int resource;
 
     private TextView tvNume, tvPuncte, tvClasament;
-    private static int nrClasament;
 
     private final List<User> capitols;
 

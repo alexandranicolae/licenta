@@ -31,6 +31,6 @@ public class User implements Comparable {
     @Override
     public int compareTo(Object o) {
         int scor = Integer.parseInt(((User) o).getScor());
-        return Integer.parseInt(this.scor) - scor;
+        return scor - Integer.parseInt(this.scor);
     }
 }

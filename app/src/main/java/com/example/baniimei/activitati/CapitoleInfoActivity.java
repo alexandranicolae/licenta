@@ -6,9 +6,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -26,31 +30,36 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class CapitoleInfoActivity extends AppCompatActivity {
 
-    private static final String DB_URL_INFO = "http://192.168.0.216/DB_licenta/SelectInformatie.php";
+    private static final String DB_URL_INFO = "http://alexandral.bestconstruct.ro/SelectInformatie.php";
     private static final int REQUEST_CODE_OK = 200;
     static final String INTENT_INFORMATIE = "Info";
+    static final String INTENT_CAPITOL = "POZITIE";
 
     private ListView listView;
 
     private ArrayList<Capitol> listaCapitole;
+    private ArrayList<Capitol> listaCapitoleInitiala;
     private ArrayList<Informatie> listaInformatii;
     private ListaAdaptorInfo adapter;
-
+    private String query = "";
+    private List<Informatie> listaInfoFiltrata;
     SharedPreferences.Editor sharedPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTheme(R.style.Theme_BaniiMei);
+        setTheme(R.style.Theme_BaniiMei_ActionBar);
         setContentView(R.layout.activity_capitole_info);
 
         // start initializari
         listView = findViewById(R.id.listViewInfo);
 
         listaInformatii = new ArrayList<>();
+        //listaInfoFiltrata = new ArrayList<>();
         Intent intent = getIntent();
         listaCapitole = (ArrayList<Capitol>) intent.getSerializableExtra(MainActivity.INTENT_LIST);
 
@@ -65,8 +74,29 @@ public class CapitoleInfoActivity extends AppCompatActivity {
         // init adaptor
         adapter = new ListaAdaptorInfo(CapitoleInfoActivity.this, R.layout.forma_adaptor_info, listaCapitole);
         listView.setAdapter(adapter);
-
+        listaCapitoleInitiala = new ArrayList<>(listaCapitole);
         getInfoDB();
+    }
+
+    private void updateListCapitole() {
+        listaCapitole.clear();
+        listaInfoFiltrata.clear();
+        for (Capitol c : listaCapitoleInitiala) {
+            Informatie infoCapitol = null;
+            for (Informatie i : listaInformatii) {
+                if (c.getId() == i.getIdCapitol()) {
+                    infoCapitol = i;
+
+                    if (infoCapitol != null && infoCapitol.getInformatie().contains(query)) {
+                        listaInfoFiltrata.add(infoCapitol);
+                        if (!listaCapitole.contains(c)) {
+                            listaCapitole.add(c);
+                        }
+                    }
+                }
+            }
+        }
+        adapter.notifyDataSetChanged();
     }
 
     private AdapterView.OnItemClickListener adapterItemClick() {
@@ -78,12 +108,13 @@ public class CapitoleInfoActivity extends AppCompatActivity {
                 if (listaCapitole.get(position).isActiv()) {
                     ArrayList<Informatie> temp = new ArrayList<>();
                     for (Informatie c : listaInformatii) {
-                        if (c.getIdCapitol() == listaCapitole.get(position).getId())
+                        if (c.getIdCapitol() == listaCapitole.get(position).getId() && listaInfoFiltrata.contains(c))
                             temp.add(c);
                     }
 
                     Intent intent = new Intent(CapitoleInfoActivity.this, InfoActivity.class);
                     intent.putExtra(INTENT_INFORMATIE, temp);
+                    intent.putExtra(INTENT_CAPITOL, position);
                     startActivityForResult(intent, REQUEST_CODE_OK);
                 } else {
                     //todo mesaj sau plateste
@@ -113,6 +144,7 @@ public class CapitoleInfoActivity extends AppCompatActivity {
                                 Informatie info = new Informatie(id, titlu, informatie, exemplu1, exemplu2, idCapitol);
                                 listaInformatii.add(info);
                             }
+                            listaInfoFiltrata = new ArrayList<>(listaInformatii);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -122,6 +154,7 @@ public class CapitoleInfoActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        System.out.println("EROARE AICI");
                         Toast.makeText(CapitoleInfoActivity.this, "Eroare baze de date: " + error.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 });
@@ -132,6 +165,9 @@ public class CapitoleInfoActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && data != null) {
+            //todo preia din data
+            Bundle b = data.getExtras();
+            //int indexActivare = (int) b.getSerializable(InfoActivity.INTENT_CAPITOL_INCHEIAT);
             int indexActivare = Capitol.getNrCapitoleActive();
             if (listaCapitole.get(indexActivare) != null) {
 
@@ -145,5 +181,29 @@ public class CapitoleInfoActivity extends AppCompatActivity {
                 //todo mesaj felicitari
             }
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.search, menu);
+        MenuItem item = menu.findItem(R.id.searchId);
+
+        SearchView searchView = (SearchView) item.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                query = newText;
+                updateListCapitole();
+                return false;
+            }
+        });
+
+        return super.onCreateOptionsMenu(menu);
     }
 }

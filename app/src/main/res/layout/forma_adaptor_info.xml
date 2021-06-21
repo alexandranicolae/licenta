@@ -28,7 +28,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/imgLvl"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@android:drawable/ic_lock_idle_lock" />
+            app:srcCompat="@drawable/ic_baseline_lock_24" />
 
         <TextView
             android:id="@+id/tvCategorie"

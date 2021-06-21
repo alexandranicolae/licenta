@@ -33,7 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_weight="4"
+            android:layout_weight="6"
             android:fontFamily="casual"
             android:text="Nume"
             android:textColor="@color/black"
@@ -43,7 +43,7 @@
         <Space
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="4" />
+            android:layout_weight="1" />
 
         <TextView
             android:id="@+id/tvPuncte"
@@ -52,7 +52,19 @@
             android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:fontFamily="casual"
-            android:text="15 puncte"
+            android:text="15"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvPuncteText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:fontFamily="casual"
+            android:text="puncte"
             android:textColor="@color/black"
             android:textSize="24sp"
             android:textStyle="bold" />

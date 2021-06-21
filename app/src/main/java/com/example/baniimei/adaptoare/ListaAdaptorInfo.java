@@ -23,7 +23,7 @@ public class ListaAdaptorInfo extends ArrayAdapter<Capitol> {
     private final int resource;
 
     private TextView textView;
-    private ImageView lock;
+    private ImageView imageViewLock;
 
     private final List<Capitol> capitols;
 
@@ -41,16 +41,14 @@ public class ListaAdaptorInfo extends ArrayAdapter<Capitol> {
         Capitol capitol = capitols.get(position);
         LayoutInflater inflater = LayoutInflater.from(context);
         convertView = inflater.inflate(resource, parent, false);
+        imageViewLock = convertView.findViewById(R.id.imgLock);
 
         if (capitol != null) {
             textView = convertView.findViewById(R.id.tvCategorie);
             textView.setText(capitol.getNumeCapitol());
 
-            lock = convertView.findViewById(R.id.imgLock);
             if (capitol.isActiv()) {
-                lock.setVisibility(View.INVISIBLE);
-            } else {
-                lock.setVisibility(View.VISIBLE);
+                imageViewLock.setVisibility(View.INVISIBLE);
             }
         }
 

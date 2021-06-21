@@ -27,11 +27,11 @@ public class InfoActivity extends AppCompatActivity {
     int indexCurent;
     Intent intent;
     SharedPreferences preferinteMuzica;
+    int nrPozitie;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTheme(R.style.Theme_BaniiMei);
         setContentView(R.layout.activity_info);
 
         tvTitlu = findViewById(R.id.tvInfoTitlu);
@@ -47,6 +47,7 @@ public class InfoActivity extends AppCompatActivity {
 
         intent = getIntent();
         listaInformatii = (ArrayList<Informatie>) intent.getSerializableExtra(CapitoleInfoActivity.INTENT_INFORMATIE);
+        nrPozitie = (int) intent.getSerializableExtra(CapitoleInfoActivity.INTENT_CAPITOL);
 
         setTextViews();
 
@@ -82,7 +83,7 @@ public class InfoActivity extends AppCompatActivity {
                 if (indexCurent == listaInformatii.size() - 1) {
                     //trimite inapoi la capitole + mesaj
                     //todo mesaj
-                    intent.putExtra(INTENT_CAPITOL_INCHEIAT, "incheiat");
+                    intent.putExtra(INTENT_CAPITOL_INCHEIAT, nrPozitie);
                     setResult(RESULT_OK, intent);
                     finish();
                     return;

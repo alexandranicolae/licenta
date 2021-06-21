@@ -13,15 +13,20 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.baniimei.R;
-import com.example.baniimei.clase.Categorie;
 import com.example.baniimei.clase.Chestionar;
+import com.example.baniimei.clase.DAOUser;
 import com.example.baniimei.fragmente.IntrebareLiberaFragment;
 import com.example.baniimei.fragmente.IntrebareQuizFragment;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -41,7 +46,6 @@ public class JocActivity extends AppCompatActivity
     private static MediaPlayer sunetRspCorect = null;
 
     Fragment fragment = null;
-    Categorie categorie;
 
     int index;
 
@@ -53,8 +57,11 @@ public class JocActivity extends AppCompatActivity
     Intent intent;
     Dialog templatePopup;
 
-    SharedPreferences preferinteSunet, prefScor;
+    private DAOUser daoUser;
+
+    SharedPreferences preferinteSunet, prefUser;
     SharedPreferences.Editor sharedPrefsEditor;
+    private String userKey = "";
 
     private ArrayList<Chestionar> listaChestionare;
 
@@ -76,19 +83,39 @@ public class JocActivity extends AppCompatActivity
             sunetRspCorect = MediaPlayer.create(this, R.raw.corect);
         }
 
+        prefUser = getSharedPreferences("DATE_USER", MODE_PRIVATE);
+        userKey = prefUser.getString("ID_USER", "");
+        daoUser = new DAOUser();
+
         intent = getIntent();
         listaChestionare = (ArrayList<Chestionar>) intent.getSerializableExtra(CapitoleJocActivity.INTENT_INTREBARE);
-        categorie = (Categorie) intent.getSerializableExtra(CapitoleJocActivity.INTENT_CATEGORIE);
 
         index = 0;
 
         btnHint.setOnClickListener(clickBtnHint());
 
-        prefScor = getSharedPreferences(getString(R.string.shprefs_scor_numefis), MODE_PRIVATE);
-        scor.setText(prefScor.getString(getString(R.string.shprefs_scor), "15"));
-        punctaj = Integer.parseInt(String.valueOf(scor.getText()));
+        //prefScor = getSharedPreferences(getString(R.string.shprefs_scor_numefis), MODE_PRIVATE);
+        setScorDB();
+        //scor.setText(daoUser.getScor(userKey));
 
         schimbaFragment();
+    }
+
+    public void setScorDB() {
+        DatabaseReference dbref = daoUser.getDatabaseReference().child(userKey).child("scor");
+        dbref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                scor.setText(snapshot.getValue(String.class));
+                System.out.println("E OK!!");
+                punctaj = Integer.parseInt(String.valueOf(scor.getText()));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                System.out.println("failed" + error.getMessage());
+            }
+        });
     }
 
     private View.OnClickListener clickBtnHint() {
@@ -211,15 +238,21 @@ public class JocActivity extends AppCompatActivity
     private void adaugaPuncte() {
         punctaj += plusPct;
         String puncte = String.valueOf(punctaj);
-        scor.setText(puncte);
-        salveazaScor(puncte);
+
+        daoUser.updateScor(userKey, puncte);
+        setScorDB();
+        //scor.setText(daoUser.getScor(userKey));
+        //salveazaScor(puncte);
     }
 
     private void scadePuncte() {
         punctaj -= minusHint;
         String puncte = String.valueOf(punctaj);
-        scor.setText(puncte);
-        salveazaScor(puncte);
+
+        daoUser.updateScor(userKey, puncte);
+        setScorDB();
+        //scor.setText(daoUser.getScor(userKey));
+        //salveazaScor(puncte);
     }
 
     private void salveazaScor(String puncte) {
