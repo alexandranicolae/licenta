@@ -41,13 +41,15 @@ public class CapitoleInfoActivity extends AppCompatActivity {
 
     private ListView listView;
 
-    private ArrayList<Capitol> listaCapitole;
-    private ArrayList<Capitol> listaCapitoleInitiala;
-    private ArrayList<Informatie> listaInformatii;
+    private List<Capitol> listaCapitole;
+    private List<Capitol> listaCapitoleInitiala;
+    private List<Informatie> listaInformatii;
     private ListaAdaptorInfo adapter;
     private String query = "";
     private List<Informatie> listaInfoFiltrata;
     SharedPreferences.Editor sharedPrefs;
+
+    int indexActivare = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +89,7 @@ public class CapitoleInfoActivity extends AppCompatActivity {
                 if (c.getId() == i.getIdCapitol()) {
                     infoCapitol = i;
 
-                    if (infoCapitol != null && infoCapitol.getInformatie().contains(query)) {
+                    if (infoCapitol != null && infoCapitol.getInformatie().toUpperCase().contains(query.toUpperCase())) {
                         listaInfoFiltrata.add(infoCapitol);
                         if (!listaCapitole.contains(c)) {
                             listaCapitole.add(c);
@@ -107,8 +109,8 @@ public class CapitoleInfoActivity extends AppCompatActivity {
                 // trimite lista info corespunzatoare capitolului
                 if (listaCapitole.get(position).isActiv()) {
                     ArrayList<Informatie> temp = new ArrayList<>();
-                    for (Informatie c : listaInformatii) {
-                        if (c.getIdCapitol() == listaCapitole.get(position).getId() && listaInfoFiltrata.contains(c))
+                    for (Informatie c : listaInfoFiltrata) {
+                        if (c.getIdCapitol() == listaCapitole.get(position).getId())
                             temp.add(c);
                     }
 
@@ -116,6 +118,8 @@ public class CapitoleInfoActivity extends AppCompatActivity {
                     intent.putExtra(INTENT_INFORMATIE, temp);
                     intent.putExtra(INTENT_CAPITOL, position);
                     startActivityForResult(intent, REQUEST_CODE_OK);
+
+                    indexActivare = position + 1;
                 } else {
                     //todo mesaj sau plateste
                 }
@@ -165,13 +169,12 @@ public class CapitoleInfoActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && data != null) {
-            //todo preia din data
-            Bundle b = data.getExtras();
-            //int indexActivare = (int) b.getSerializable(InfoActivity.INTENT_CAPITOL_INCHEIAT);
-            int indexActivare = Capitol.getNrCapitoleActive();
-            if (listaCapitole.get(indexActivare) != null) {
+            //Bundle b = data.getExtras();
+            //int indexActivare = (int) b.getSerializable(InfoActivity.INTENT_CAPITOL_INCHEIAT) +1;
+            //int indexActivare = Capitol.getNrCapitoleActive();
+            if (listaCapitole.get(indexActivare) != null && !listaCapitole.get(indexActivare).isActiv()) {
 
-                listaCapitole.get(indexActivare).activeaza();
+                listaCapitole.get(indexActivare).setActiv(true);
                 adapter.notifyDataSetChanged();
 
                 sharedPrefs = getSharedPreferences("Capitole active", MODE_PRIVATE).edit();

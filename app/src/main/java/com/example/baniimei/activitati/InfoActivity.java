@@ -20,14 +20,12 @@ import java.util.List;
 
 public class InfoActivity extends AppCompatActivity {
 
-    static final String INTENT_CAPITOL_INCHEIAT = "capitol incheiat";
     TextView tvInfo, tvEx1, tvEx2, tvTitlu;
     List<Informatie> listaInformatii;
     Button btnNext, btnBack;
     int indexCurent;
     Intent intent;
     SharedPreferences preferinteMuzica;
-    int nrPozitie;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +45,6 @@ public class InfoActivity extends AppCompatActivity {
 
         intent = getIntent();
         listaInformatii = (ArrayList<Informatie>) intent.getSerializableExtra(CapitoleInfoActivity.INTENT_INFORMATIE);
-        nrPozitie = (int) intent.getSerializableExtra(CapitoleInfoActivity.INTENT_CAPITOL);
 
         setTextViews();
 
@@ -83,7 +80,6 @@ public class InfoActivity extends AppCompatActivity {
                 if (indexCurent == listaInformatii.size() - 1) {
                     //trimite inapoi la capitole + mesaj
                     //todo mesaj
-                    intent.putExtra(INTENT_CAPITOL_INCHEIAT, nrPozitie);
                     setResult(RESULT_OK, intent);
                     finish();
                     return;

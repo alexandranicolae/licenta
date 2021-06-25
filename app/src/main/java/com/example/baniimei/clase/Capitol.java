@@ -8,7 +8,6 @@ public class Capitol implements Serializable {
     private final String numeCapitol;
 
     private boolean eActiv;
-    private static int nrCapitoleActive;
     private Dificultate dificultate;
 
     public Capitol(int id, String numeCapitol, Dificultate dificultate) {
@@ -16,7 +15,6 @@ public class Capitol implements Serializable {
         this.numeCapitol = numeCapitol;
 
         this.eActiv = false;
-        nrCapitoleActive = 0;
         this.dificultate = dificultate;
     }
 
@@ -36,23 +34,8 @@ public class Capitol implements Serializable {
         return eActiv;
     }
 
-    public void activeaza() {
-        if (!this.isActiv()) {
-            this.eActiv = true;
-            nrCapitoleActive++;
-        }
-    }
-
     public void setActiv(boolean eActiv) {
         this.eActiv = eActiv;
-    }
-
-    public static int getNrCapitoleActive() {
-        return nrCapitoleActive;
-    }
-
-    public static void setNrCapitoleActive(int nrCapitoleActive) {
-        Capitol.nrCapitoleActive = nrCapitoleActive;
     }
 
     public Dificultate getDificultate() {

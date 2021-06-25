@@ -271,19 +271,13 @@ public class MainActivity extends AppCompatActivity {
                             Capitol capitol = new Capitol(id, titlu, dificultate);
                             listaCapitole.add(capitol);
                         }
-                        listaCapitole.get(0).activeaza();
+                        listaCapitole.get(0).setActiv(true);
 
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(MainActivity.this, "Eroare baze de date Capitole: " + error.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                });
+                error -> Toast.makeText(MainActivity.this, "Eroare baze de date Capitole: " + error.getMessage(), Toast.LENGTH_LONG).show());
         Volley.newRequestQueue(this).add(request);
     }
-
 }

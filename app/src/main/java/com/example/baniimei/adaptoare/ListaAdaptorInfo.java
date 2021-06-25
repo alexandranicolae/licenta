@@ -27,7 +27,7 @@ public class ListaAdaptorInfo extends ArrayAdapter<Capitol> {
 
     private final List<Capitol> capitols;
 
-    public ListaAdaptorInfo(Context context, int resource, ArrayList<Capitol> objects) {
+    public ListaAdaptorInfo(Context context, int resource, List<Capitol> objects) {
         super(context, resource, objects);
         this.context = context;
         this.resource = resource;

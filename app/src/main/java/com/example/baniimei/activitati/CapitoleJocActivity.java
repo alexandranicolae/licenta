@@ -60,8 +60,6 @@ public class CapitoleJocActivity extends AppCompatActivity {
     SharedPreferences prefUser;
     private String userKey = "";
 
-    private int pozUltimAccesat = -1;
-
     private DAOUser daoUser;
 
     @Override
@@ -129,7 +127,6 @@ public class CapitoleJocActivity extends AppCompatActivity {
                 // start JocActivity
                 // trimite lista intrebari corespunzatoare capitolului
                 Capitol capitol = listaCapitole.get(position);
-                pozUltimAccesat = position;
 
                 Intent intent = new Intent(CapitoleJocActivity.this, JocActivity.class);
                 ArrayList<Chestionar> temp = new ArrayList<>();
@@ -193,35 +190,32 @@ public class CapitoleJocActivity extends AppCompatActivity {
 
     private void getIntrebariDB() {
         StringRequest request = new StringRequest(Request.Method.GET, DB_URL_INTREBARE,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONArray chestionareJSON = new JSONArray(response);
+                response -> {
+                    try {
+                        JSONArray chestionareJSON = new JSONArray(response);
 
-                            for (int i = 0; i < chestionareJSON.length(); i++) {
-                                JSONObject obiect = chestionareJSON.getJSONObject(i);
+                        for (int i = 0; i < chestionareJSON.length(); i++) {
+                            JSONObject obiect = chestionareJSON.getJSONObject(i);
 
-                                int id = obiect.getInt("idIntrebare");
-                                String intrebare = obiect.getString("intrebare");
-                                String raspunsCorect = obiect.getString("raspunsCorect");
-                                String raspunsuriString = obiect.getString("raspunsuri"); //da "NULL"
+                            int id = obiect.getInt("idIntrebare");
+                            String intrebare = obiect.getString("intrebare");
+                            String raspunsCorect = obiect.getString("raspunsCorect");
+                            String raspunsuriString = obiect.getString("raspunsuri"); //da "NULL"
 
-                                List<String> raspunsuri = new ArrayList<>();
-                                if (raspunsuriString != null && !(raspunsuriString.toUpperCase().equals("NULL"))) {
-                                    raspunsuri = Arrays.asList(raspunsuriString.split(" , "));
-                                }
-
-                                String indiciu = obiect.getString("indiciu");
-                                int idCapitol = obiect.getInt("idCapitol");
-
-                                Chestionar intr = new Chestionar(id, intrebare, raspunsCorect, raspunsuri, indiciu, idCapitol);
-                                listaIntrebari.add(intr);
+                            List<String> raspunsuri = new ArrayList<>();
+                            if (raspunsuriString != null && !(raspunsuriString.toUpperCase().equals("NULL"))) {
+                                raspunsuri = Arrays.asList(raspunsuriString.split(" , "));
                             }
 
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                            String indiciu = obiect.getString("indiciu");
+                            int idCapitol = obiect.getInt("idCapitol");
+
+                            Chestionar intr = new Chestionar(id, intrebare, raspunsCorect, raspunsuri, indiciu, idCapitol);
+                            listaIntrebari.add(intr);
                         }
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
                 },
                 new Response.ErrorListener() {
@@ -237,12 +231,12 @@ public class CapitoleJocActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_OK && resultCode == RESULT_OK && data != null) {
-            Bundle b = data.getExtras();
-            int nrCompletate = (int) b.getSerializable(JocActivity.CODE_COMPLETATE);
-            int nrTotale = (int) b.getSerializable(JocActivity.CODE_TOTALE);
-
-            //listaCapitole.get(pozUltimAccesat).setNrChCompletate(nrCompletate);
-            //listaCapitole.get(pozUltimAccesat).setNrChTotale(nrTotale);
+//            Bundle b = data.getExtras();
+//            int nrCompletate = (int) b.getSerializable(JocActivity.CODE_COMPLETATE);
+//            int nrTotale = (int) b.getSerializable(JocActivity.CODE_TOTALE);
+//
+//            //listaCapitole.get(pozUltimAccesat).setNrChCompletate(nrCompletate);
+//            //listaCapitole.get(pozUltimAccesat).setNrChTotale(nrTotale);
 
             setScorDB();
             //scor.setText(daoUser.getScor(userKey));

@@ -36,7 +36,7 @@ public class SunetFundalService extends Service {
         return startId;
     }
 
-    public void onStart(Intent intent, int startId) { }
+    //public void onStart(Intent intent, int startId) { }
 
     @Override
     public void onDestroy() {

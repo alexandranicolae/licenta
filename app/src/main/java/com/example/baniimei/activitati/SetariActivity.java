@@ -1,10 +1,14 @@
 package com.example.baniimei.activitati;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
 import android.app.Dialog;
+import android.app.DownloadManager;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -15,6 +19,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.baniimei.R;
+import com.example.baniimei.clase.Evaluare;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
 
 public class SetariActivity extends AppCompatActivity {
 
@@ -23,6 +36,11 @@ public class SetariActivity extends AppCompatActivity {
     Dialog desprePopup, evalueazaPopup;
     SharedPreferences.Editor sharedPrefs;
 
+    FirebaseStorage firebaseStorage;
+    StorageReference storageReference;
+    StorageReference reference;
+    private static final String PDF_REF = "test.pdf";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,7 +48,6 @@ public class SetariActivity extends AppCompatActivity {
         setContentView(R.layout.activity_setari);
 
         init();
-
         initPrefs();
 
         swSunet.setOnCheckedChangeListener(sunetClick());
@@ -110,9 +127,9 @@ public class SetariActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         //todo
                         //sa se retina evaluarea in bd externa
-                        // sa se salveze starea cu sharepref?
-                        // doar prima data?
-                        Toast.makeText(getApplicationContext(), rating.getRating() +" "+mesaj.getText(), Toast.LENGTH_LONG).show();
+                        Evaluare evaluare = new Evaluare(rating.getRating(), mesaj.getText().toString());
+                        trimiteEvaluare(evaluare);
+                        Toast.makeText(getApplicationContext(), rating.getRating() + " " + mesaj.getText(), Toast.LENGTH_LONG).show();
                         //de retinut ca rating bar-ul e de la 0 la 5!
                         evalueazaPopup.dismiss();
                     }
@@ -123,10 +140,34 @@ public class SetariActivity extends AppCompatActivity {
         };
     }
 
+    private void trimiteEvaluare(Evaluare evaluare) {
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference dbref = db.getReference(Evaluare.class.getSimpleName());
+        dbref.push().setValue(evaluare);
+    }
+
     private View.OnClickListener descarcaClick() {
         return v -> {
             //TODO
-            //descarca materiale
+            storageReference = FirebaseStorage.getInstance().getReference();
+
+            reference = storageReference.child(PDF_REF);
+            reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    DownloadManager manager = (DownloadManager) SetariActivity.this.getSystemService(Context.DOWNLOAD_SERVICE);
+                    DownloadManager.Request request = new DownloadManager.Request(uri);
+                    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                    request.setDestinationInExternalFilesDir(SetariActivity.this, DIRECTORY_DOWNLOADS, PDF_REF);
+
+                    manager.enqueue(request);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(SetariActivity.this, "Serviciu indisponibil! Va rugam incercati mai tarziu!", Toast.LENGTH_LONG).show();
+                }
+            });
         };
     }
 
