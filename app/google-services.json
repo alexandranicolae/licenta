@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "796861841630",
+    "project_id": "baniimei-a9176",
+    "storage_bucket": "baniimei-a9176.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:796861841630:android:0fc69c1bee0ba69cbe824f",
+        "android_client_info": {
+          "package_name": "com.example.baniimei"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "796861841630-12mcr3lpimtrfhgthp1v822ltgec5f73.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1arj81Un0qOqoAMcxag-pMBirH33hAoc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "796861841630-12mcr3lpimtrfhgthp1v822ltgec5f73.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
