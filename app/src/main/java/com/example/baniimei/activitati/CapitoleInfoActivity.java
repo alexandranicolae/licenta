@@ -1,10 +1,5 @@
 package com.example.baniimei.activitati;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,14 +13,19 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.baniimei.R;
-import com.example.baniimei.clase.Capitol;
 import com.example.baniimei.adaptoare.ListaAdaptorInfo;
+import com.example.baniimei.clase.Capitol;
 import com.example.baniimei.clase.DAOUser;
 import com.example.baniimei.clase.Informatie;
 import com.google.firebase.database.DataSnapshot;
@@ -103,7 +103,6 @@ public class CapitoleInfoActivity extends AppCompatActivity {
             for (Informatie i : listaInformatii) {
                 if (c.getId() == i.getIdCapitol()) {
                     infoCapitol = i;
-
                     if (infoCapitol != null && infoCapitol.getInformatie().toUpperCase().contains(query.toUpperCase())) {
                         listaInfoFiltrata.add(infoCapitol);
                         if (!listaCapitole.contains(c)) {
@@ -252,8 +251,10 @@ public class CapitoleInfoActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && data != null) {
-            if (listaCapitole.get(indexActivare) != null && !listaCapitole.get(indexActivare).isActiv()) {
-                activeazaCapitol(indexActivare);
+            if (listaInfoFiltrata.size() == listaInformatii.size()) {
+                if (listaCapitoleInitiala.get(indexActivare) != null && !listaCapitoleInitiala.get(indexActivare).isActiv()) {
+                    activeazaCapitol(indexActivare);
+                }
             } else {
                 //todo mesaj felicitari
             }
@@ -261,11 +262,11 @@ public class CapitoleInfoActivity extends AppCompatActivity {
     }
 
     public void activeazaCapitol(int poz) {
-        listaCapitole.get(poz).setActiv(true);
+        listaCapitoleInitiala.get(poz).setActiv(true);
         adapter.notifyDataSetChanged();
 
         sharedPrefs = getSharedPreferences("Capitole active", MODE_PRIVATE).edit();
-        sharedPrefs.putBoolean(String.valueOf(listaCapitole.get(poz).getId()), listaCapitole.get(poz).isActiv());
+        sharedPrefs.putBoolean(String.valueOf(listaCapitoleInitiala.get(poz).getId()), listaCapitoleInitiala.get(poz).isActiv());
         sharedPrefs.apply();
     }
 
