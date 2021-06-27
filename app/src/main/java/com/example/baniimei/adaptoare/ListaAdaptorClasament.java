@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
@@ -13,7 +15,6 @@ import androidx.annotation.Nullable;
 import com.example.baniimei.R;
 import com.example.baniimei.clase.User;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ListaAdaptorClasament extends ArrayAdapter<User> {
@@ -49,6 +50,10 @@ public class ListaAdaptorClasament extends ArrayAdapter<User> {
             int poz = position + 1;
             tvClasament.setText("#" + poz);
         }
+
+        Animation animation = AnimationUtils.loadAnimation(context, R.anim.slide_left);
+        animation.setDuration(position * animation.getDuration());
+        convertView.startAnimation(animation);
 
         return convertView;
     }

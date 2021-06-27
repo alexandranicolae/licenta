@@ -29,7 +29,7 @@
             android:layout_marginTop="8dp"
             android:fontFamily="casual"
             android:text="Categorie"
-            android:textColor="@color/white"
+            android:textColor="@color/black"
             android:textSize="24sp"
             android:textStyle="bold"
             app:layout_constraintStart_toEndOf="@+id/imgLvl"

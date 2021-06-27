@@ -1,8 +1,11 @@
 package com.example.baniimei.activitati;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -23,7 +26,12 @@ import com.android.volley.toolbox.Volley;
 import com.example.baniimei.R;
 import com.example.baniimei.clase.Capitol;
 import com.example.baniimei.adaptoare.ListaAdaptorInfo;
+import com.example.baniimei.clase.DAOUser;
 import com.example.baniimei.clase.Informatie;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,6 +56,10 @@ public class CapitoleInfoActivity extends AppCompatActivity {
     private String query = "";
     private List<Informatie> listaInfoFiltrata;
     SharedPreferences.Editor sharedPrefs;
+    int pretCapitol;
+    int punctaj = 0;
+    DAOUser daoUser;
+    String userKey = "";
 
     int indexActivare = 0;
 
@@ -73,11 +85,14 @@ public class CapitoleInfoActivity extends AppCompatActivity {
             listaCapitole.get(i).setActiv(preferinte.getBoolean(String.valueOf(listaCapitole.get(i).getId()), false));
         }
 
+        daoUser = new DAOUser();
+
         // init adaptor
         adapter = new ListaAdaptorInfo(CapitoleInfoActivity.this, R.layout.forma_adaptor_info, listaCapitole);
         listView.setAdapter(adapter);
         listaCapitoleInitiala = new ArrayList<>(listaCapitole);
         getInfoDB();
+        getScorDB();
     }
 
     private void updateListCapitole() {
@@ -105,26 +120,94 @@ public class CapitoleInfoActivity extends AppCompatActivity {
         return new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                // start InfoActivity
-                // trimite lista info corespunzatoare capitolului
                 if (listaCapitole.get(position).isActiv()) {
-                    ArrayList<Informatie> temp = new ArrayList<>();
-                    for (Informatie c : listaInfoFiltrata) {
-                        if (c.getIdCapitol() == listaCapitole.get(position).getId())
-                            temp.add(c);
-                    }
-
-                    Intent intent = new Intent(CapitoleInfoActivity.this, InfoActivity.class);
-                    intent.putExtra(INTENT_INFORMATIE, temp);
-                    intent.putExtra(INTENT_CAPITOL, position);
-                    startActivityForResult(intent, REQUEST_CODE_OK);
-
-                    indexActivare = position + 1;
+                    startInfoActivity(position);
                 } else {
-                    //todo mesaj sau plateste
+                    platesteDeblocare(position);
                 }
             }
         };
+    }
+
+    public void startInfoActivity(int position) {
+        ArrayList<Informatie> temp = new ArrayList<>();
+        for (Informatie c : listaInfoFiltrata) {
+            if (c.getIdCapitol() == listaCapitole.get(position).getId())
+                temp.add(c);
+        }
+
+        Intent intent = new Intent(CapitoleInfoActivity.this, InfoActivity.class);
+        intent.putExtra(INTENT_INFORMATIE, temp);
+        intent.putExtra(INTENT_CAPITOL, position);
+        startActivityForResult(intent, REQUEST_CODE_OK);
+
+        indexActivare = position + 1;
+    }
+
+    public void platesteDeblocare(int position) {
+        //sigur doriti?
+        AlertDialog.Builder builder = new AlertDialog.Builder(CapitoleInfoActivity.this);
+
+        calculeazaPretCapitol(position);
+
+        builder.setMessage("Acest capitol este blocat. El poate fi deblocat daca capitolul de dinaintea lui este completat, sau in schimbul a " + pretCapitol + " monede. \nDoriti sa-l deblocati acum?");
+        builder.setCancelable(true);
+        builder.setPositiveButton(R.string.da, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (punctaj >= pretCapitol) {
+                    // todo activeaza capitol
+                    activeazaCapitol(position);
+                    // scade puncte
+                    scadePuncte();
+
+                } else {
+                    // nu->toast fonduri insuficiente
+                    Toast.makeText(getApplicationContext(), "Fonduri insuficiente!", Toast.LENGTH_LONG).show();
+                }
+                dialog.cancel();
+            }
+        });
+        builder.setNegativeButton(R.string.nu, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    public void calculeazaPretCapitol(int poz) {
+        pretCapitol = 5;
+        for (int i = 0; i < poz; i++) {
+            if (!listaCapitole.get(i).isActiv()) {
+                pretCapitol += 5;
+            }
+        }
+    }
+
+    public void scadePuncte() {
+        punctaj -= pretCapitol;
+        daoUser.updateScor(userKey, String.valueOf(punctaj));
+    }
+
+    public void getScorDB() {
+        SharedPreferences prefUser = getSharedPreferences("DATE_USER", MODE_PRIVATE);
+        userKey = prefUser.getString("ID_USER", "");
+
+        DatabaseReference dbref = daoUser.getDatabaseReference().child(userKey).child("scor");
+        dbref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                punctaj = Integer.parseInt(String.valueOf(snapshot.getValue(String.class)));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                System.out.println("failed" + error.getMessage());
+            }
+        });
     }
 
     private void getInfoDB() {
@@ -169,21 +252,21 @@ public class CapitoleInfoActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && data != null) {
-            //Bundle b = data.getExtras();
-            //int indexActivare = (int) b.getSerializable(InfoActivity.INTENT_CAPITOL_INCHEIAT) +1;
-            //int indexActivare = Capitol.getNrCapitoleActive();
             if (listaCapitole.get(indexActivare) != null && !listaCapitole.get(indexActivare).isActiv()) {
-
-                listaCapitole.get(indexActivare).setActiv(true);
-                adapter.notifyDataSetChanged();
-
-                sharedPrefs = getSharedPreferences("Capitole active", MODE_PRIVATE).edit();
-                sharedPrefs.putBoolean(String.valueOf(listaCapitole.get(indexActivare).getId()), listaCapitole.get(indexActivare).isActiv());
-                sharedPrefs.apply();
+                activeazaCapitol(indexActivare);
             } else {
                 //todo mesaj felicitari
             }
         }
+    }
+
+    public void activeazaCapitol(int poz) {
+        listaCapitole.get(poz).setActiv(true);
+        adapter.notifyDataSetChanged();
+
+        sharedPrefs = getSharedPreferences("Capitole active", MODE_PRIVATE).edit();
+        sharedPrefs.putBoolean(String.valueOf(listaCapitole.get(poz).getId()), listaCapitole.get(poz).isActiv());
+        sharedPrefs.apply();
     }
 
     @Override

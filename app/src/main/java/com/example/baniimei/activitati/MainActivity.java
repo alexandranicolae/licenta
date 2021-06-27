@@ -1,10 +1,5 @@
 package com.example.baniimei.activitati;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.res.ResourcesCompat;
-
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.Dialog;
@@ -19,13 +14,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.baniimei.R;
@@ -35,12 +30,9 @@ import com.example.baniimei.clase.Dificultate;
 import com.example.baniimei.clase.Notificare;
 import com.example.baniimei.clase.SunetFundalService;
 import com.example.baniimei.clase.User;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.android.material.textfield.TextInputLayout;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -106,51 +98,69 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void requireNume() {
-        EditText etNume;
-        TextView tvEroare;
+        TextInputLayout etInputNume;
+
         Button btn;
 
         numePopup = new Dialog(MainActivity.this);
         numePopup.setCanceledOnTouchOutside(false);
 
         numePopup.setContentView(R.layout.nume_popup);
-        etNume = numePopup.findViewById(R.id.etNume);
-        tvEroare = numePopup.findViewById(R.id.tvEroareNume);
+        etInputNume = numePopup.findViewById(R.id.etInputNume);
+
         btn = numePopup.findViewById(R.id.btnOkNume);
 
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String input = etNume.getText().toString();
-
-                if (input.isEmpty() || input.length() < 3) {
-                    etNume.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.red, null));
-                    tvEroare.setVisibility(View.VISIBLE);
-                } else {
-                    User user = new User(input);
-                    String cheie = dbUser.getDatabaseReference().push().getKey();
-                    dbUser.getDatabaseReference().child(cheie).setValue(user).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Toast.makeText(MainActivity.this, "Bine ai venit, " + user.getNume() + "!", Toast.LENGTH_SHORT).show();
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(MainActivity.this, "EROARE BAZA DE DATE!", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
-                    SharedPreferences.Editor sharedPrefsEditor = getSharedPreferences("DATE_USER", MODE_PRIVATE).edit();
-                    sharedPrefsEditor.putString("ID_USER", cheie);
-                    sharedPrefsEditor.apply();
-
-                    numePopup.dismiss();
+                Boolean eCorect = eCorectNumele(etInputNume);
+                if (!eCorect) {
+                    return;
                 }
+                String input = etInputNume.getEditText().getText().toString().trim();
+                User user = new User(input);
+
+                adaugaInDB(user);
+                numePopup.dismiss();
             }
         });
 
         numePopup.show();
+    }
+
+    private void adaugaInDB(User user) {
+        String cheie = dbUser.getDatabaseReference().push().getKey();
+        dbUser.getDatabaseReference().child(cheie).setValue(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(MainActivity.this, "Bine ai venit, " + user.getNume() + "!", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(MainActivity.this, "EROARE BAZA DE DATE!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        salveazaCheie(cheie);
+    }
+
+    private void salveazaCheie(String cheie) {
+        SharedPreferences.Editor sharedPrefsEditor = getSharedPreferences("DATE_USER", MODE_PRIVATE).edit();
+        sharedPrefsEditor.putString("ID_USER", cheie);
+        sharedPrefsEditor.apply();
+    }
+
+    public boolean eCorectNumele(TextInputLayout etInputNume) {
+        String input = etInputNume.getEditText().getText().toString().trim();
+        if (input.isEmpty() || input.length() < 3) {
+            etInputNume.setError("Numele trebuie sa aiba minim 3 caractere");
+            return false;
+        } else {
+            etInputNume.setError(null);
+            //etInputNume.setErrorEnabled(false);
+            return true;
+        }
     }
 
     private void init() {
@@ -203,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder=new AlertDialog.Builder(MainActivity.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setMessage(R.string.exit_message);
                 builder.setCancelable(true);
                 builder.setNegativeButton(R.string.exit_da, new DialogInterface.OnClickListener() {
