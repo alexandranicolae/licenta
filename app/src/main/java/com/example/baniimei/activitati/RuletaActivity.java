@@ -30,7 +30,7 @@ public class RuletaActivity extends AppCompatActivity {
     Dialog templatePopup;
 
     List<WheelItem> itemList = new ArrayList<>();
-    String pct;
+    int pct;
     String puncteCastigate;
 
     Intent intent;
@@ -43,7 +43,6 @@ public class RuletaActivity extends AppCompatActivity {
 
         roata = findViewById(R.id.roata);
         btnSpin = findViewById(R.id.btnRoata);
-
         intent = getIntent();
 
         populeazaRoata();
@@ -51,7 +50,7 @@ public class RuletaActivity extends AppCompatActivity {
         roata.setLuckyWheelReachTheTarget(new OnLuckyWheelReachTheTarget() {
             @Override
             public void onReachTarget() {
-                WheelItem win = itemList.get(Integer.parseInt(pct) - 1);
+                WheelItem win = itemList.get(pct - 1);
                 puncteCastigate = win.text;
 
                 if (puncteCastigate.equals("0")) {
@@ -138,11 +137,11 @@ public class RuletaActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Random random = new Random();
-                pct = String.valueOf(random.nextInt(itemList.size()));
-                if (pct.equals("0")) {
-                    pct = String.valueOf(1);
+                pct = random.nextInt(itemList.size());
+                if (pct == 0) {
+                    pct = 1;
                 }
-                roata.rotateWheelTo(Integer.parseInt(pct));
+                roata.rotateWheelTo(pct);
             }
         };
     }

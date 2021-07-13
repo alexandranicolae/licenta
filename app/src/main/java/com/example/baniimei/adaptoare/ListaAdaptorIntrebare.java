@@ -2,7 +2,6 @@ package com.example.baniimei.adaptoare;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,12 +23,8 @@ import java.util.List;
 
 public class ListaAdaptorIntrebare extends ArrayAdapter<Capitol> {
 
-    private static final String DETALII_RANDOM = "Intrebari din toate categoriile";
     private final Context context;
     private final int resource;
-
-    private TextView textViewTitlu;
-    private ProgressBar pgBar;
 
     private final List<Capitol> capitols;
 
@@ -40,7 +35,7 @@ public class ListaAdaptorIntrebare extends ArrayAdapter<Capitol> {
         this.capitols = objects;
     }
 
-    @SuppressLint("ResourceAsColor")
+    @SuppressLint("ViewHolder")
     @RequiresApi(api = Build.VERSION_CODES.N)
     @NonNull
     @Override
@@ -51,31 +46,27 @@ public class ListaAdaptorIntrebare extends ArrayAdapter<Capitol> {
         convertView = inflater.inflate(resource, parent, false);
 
         if (capitol != null) {
-            textViewTitlu = convertView.findViewById(R.id.tvCategorie);
+            TextView textViewTitlu = convertView.findViewById(R.id.tvCategorie);
             textViewTitlu.setText(capitol.getNumeCapitol());
 
-            pgBar = convertView.findViewById(R.id.pgBar);
+            ProgressBar pgBar = convertView.findViewById(R.id.pgBar);
+            int start = 100 / Dificultate.values().length;
 
             switch (capitol.getDificultate()) {
                 case USOARA: {
-                    pgBar.setProgress(33, true);
+                    pgBar.setProgress(1 * start, true);
                     //pgBar.setProgressTintList(ColorStateList.valueOf(R.color.grn));
                     break;
                 }
                 case MEDIE:
-                    pgBar.setProgress(66, true);
+                    pgBar.setProgress(2 * start, true);
                     //pgBar.setProgressTintList(ColorStateList.valueOf(R.color.portocaliu));
                     break;
                 case GREA:
-                    pgBar.setProgress(100, true);
+                    pgBar.setProgress(3 * start, true);
                     //pgBar.setProgressTintList(ColorStateList.valueOf(R.color.red));
                     break;
             }
-//            if (capitol.getNrChTotale() != 0)
-//                pgBar.setProgress(capitol.getNrChCompletate() / capitol.getNrChTotale());
-//            else
-//                pgBar.setProgress(0);
-
         }
 
         return convertView;

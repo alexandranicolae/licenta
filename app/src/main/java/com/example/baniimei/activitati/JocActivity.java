@@ -19,7 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.baniimei.R;
-import com.example.baniimei.clase.Chestionar;
+import com.example.baniimei.clase.Intrebare;
 import com.example.baniimei.clase.DAOUser;
 import com.example.baniimei.fragmente.IntrebareLiberaFragment;
 import com.example.baniimei.fragmente.IntrebareQuizFragment;
@@ -36,10 +36,10 @@ public class JocActivity extends AppCompatActivity
 
     public static final String TAG_CHESTIONAR = "chestionar";
 
-    private final int minusHint = 5;
-    private final int plusPct = 5;
+    private static final int minusHint = 5;
+    private static final int plusPct = 5;
 
-    private static MediaPlayer sunetJocIncheiat = null;
+    //private static MediaPlayer sunetJocIncheiat = null;
     private static MediaPlayer sunetRspGresit = null;
     private static MediaPlayer sunetRspCorect = null;
 
@@ -60,7 +60,7 @@ public class JocActivity extends AppCompatActivity
     SharedPreferences preferinteSunet, prefUser;
     private String userKey = "";
 
-    private ArrayList<Chestionar> listaChestionare;
+    private ArrayList<Intrebare> listaIntrebari;
 
     private Boolean aCerutHint = false;
 
@@ -78,7 +78,7 @@ public class JocActivity extends AppCompatActivity
         if (preferinteSunet.getBoolean(getString(R.string.shprefs_sunet_key), true)) {
             sunetRspGresit = MediaPlayer.create(this, R.raw.wrong);
             sunetRspCorect = MediaPlayer.create(this, R.raw.corect);
-            sunetJocIncheiat = MediaPlayer.create(this, R.raw.success);
+            //sunetJocIncheiat = MediaPlayer.create(this, R.raw.success);
         }
 
         prefUser = getSharedPreferences("DATE_USER", MODE_PRIVATE);
@@ -86,7 +86,7 @@ public class JocActivity extends AppCompatActivity
         daoUser = new DAOUser();
 
         intent = getIntent();
-        listaChestionare = (ArrayList<Chestionar>) intent.getSerializableExtra(CapitoleJocActivity.INTENT_INTREBARE);
+        listaIntrebari = (ArrayList<Intrebare>) intent.getSerializableExtra(CapitoleJocActivity.INTENT_INTREBARE);
 
         index = 0;
 
@@ -121,31 +121,21 @@ public class JocActivity extends AppCompatActivity
                     AlertDialog.Builder builder = new AlertDialog.Builder(JocActivity.this);
                     builder.setMessage(R.string.dialog_hint);
                     builder.setCancelable(true);
-                    builder.setPositiveButton(R.string.da, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (punctaj >= minusHint) {
-                                //      da->popup mesaj + -pct
-                                showMesajPopup(JocActivity.this, listaChestionare.get(index).getIndiciu(), getString(R.string.hint_title));
-                                scadePuncte();
-                                aCerutHint = true;
-                            } else {
-                                //      nu->toast
-                                Toast.makeText(getApplicationContext(), "Fonduri insuficiente!", Toast.LENGTH_LONG).show();
-                            }
-                            dialog.cancel();
+                    builder.setPositiveButton(R.string.da, (dialog, which) -> {
+                        if (punctaj >= minusHint) {
+                            showMesajPopup(JocActivity.this, listaIntrebari.get(index).getIndiciu(), getString(R.string.hint_title));
+                            scadePuncte();
+                            aCerutHint = true;
+                        } else {
+                            Toast.makeText(JocActivity.this, "Fonduri insuficiente!", Toast.LENGTH_LONG).show();
                         }
+                        dialog.cancel();
                     });
-                    builder.setNegativeButton(R.string.nu, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    });
+                    builder.setNegativeButton(R.string.nu, (dialog, which) -> dialog.cancel());
                     AlertDialog alertDialog = builder.create();
                     alertDialog.show();
                 } else {
-                    showMesajPopup(JocActivity.this, listaChestionare.get(index).getIndiciu(), getString(R.string.hint_title));
+                    showMesajPopup(JocActivity.this, listaIntrebari.get(index).getIndiciu(), getString(R.string.hint_title));
                 }
             }
         };
@@ -155,14 +145,14 @@ public class JocActivity extends AppCompatActivity
         if (fragment != null)
             getSupportFragmentManager().beginTransaction().remove(fragment).commit();
 
-        if (listaChestionare.get(index).getRaspunsuri().isEmpty()) {
+        if (listaIntrebari.get(index).getRaspunsuri().isEmpty()) {
             fragment = new IntrebareLiberaFragment();
         } else {
             fragment = new IntrebareQuizFragment();
         }
 
         Bundle b = new Bundle();
-        b.putSerializable(TAG_CHESTIONAR, listaChestionare.get(index));
+        b.putSerializable(TAG_CHESTIONAR, listaIntrebari.get(index));
         fragment.setArguments(b);
 
 
@@ -172,11 +162,8 @@ public class JocActivity extends AppCompatActivity
     }
 
     private void seteazaTextNrIntrebare() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(index + 1);
-        builder.append(" / ");
-        builder.append(listaChestionare.size());
-        tvNrIntrebare.setText(builder.toString());
+        String builder = (index + 1) + " / " + listaIntrebari.size();
+        tvNrIntrebare.setText(builder);
     }
 
     private void adaugaPuncte() {
@@ -224,7 +211,9 @@ public class JocActivity extends AppCompatActivity
 
         tvMesaj.setText(mesaj);
 
-        if (context.getString(R.string.msj_nivelincheiat).equals(mesaj)) {
+        if ("Joc incheiat".equals(mesaj)) {
+            tvTitlu.setText(mesaj);
+            tvMesaj.setText("Nivelul s-a incheiat! Poti alege alta categorie, sau tot pe aceasta pentru a accesa intrebari noi!");
             btnX.setOnClickListener(clickFelicitariPopupFinish());
             btn.setOnClickListener(clickFelicitariPopupFinish());
         } else {
@@ -255,21 +244,17 @@ public class JocActivity extends AppCompatActivity
         };
     }
 
-    public void handleRaspuns(String value) {
-        String raspDat = value;
-
+    public void handleRaspuns(String raspunsDat) {
         index++;
         //e corect? ne asiguram ca rasp dat de la tastatura e ok si el
-        if (listaChestionare.get(index - 1).getRaspunsCorect().toUpperCase().replaceAll("\\s", "")
-                .equals(raspDat.toUpperCase().replaceAll("\\s", ""))) {
-
+        if (listaIntrebari.get(index - 1).getRaspunsCorect().toUpperCase().replaceAll("\\s", "")
+                .equals(raspunsDat.toUpperCase().replaceAll("\\s", ""))) {
             if (sunetRspCorect != null) {
                 sunetRspCorect.start();
             }
             if (!aCerutHint) {
                 adaugaPuncte();
             }
-
         } else {
             // nu-> sunet + next fara puncte :(
             if (sunetRspGresit != null) {
@@ -277,14 +262,13 @@ public class JocActivity extends AppCompatActivity
             }
         }
         // s-a terminat?
-        if (index < listaChestionare.size()) {
+        if (index < listaIntrebari.size()) {
             // nu->next intreb
             schimbaFragment();
         } else {
             // da->mesaj felicitari popup+ inapoi la capitol(+send score si activeaza next)
-            showMesajPopup(JocActivity.this, getString(R.string.msj_nivelincheiat));
+            showMesajPopup(JocActivity.this, "Joc incheiat");
         }
-
         aCerutHint = false;
     }
 

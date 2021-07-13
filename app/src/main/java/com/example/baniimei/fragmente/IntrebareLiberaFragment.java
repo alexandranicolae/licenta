@@ -14,14 +14,14 @@ import android.widget.TextView;
 
 import com.example.baniimei.R;
 import com.example.baniimei.activitati.JocActivity;
-import com.example.baniimei.clase.Chestionar;
+import com.example.baniimei.clase.Intrebare;
 
 public class IntrebareLiberaFragment extends Fragment {
 
     TextView tvIntrebare;
     EditText etRasp;
     ImageButton btnSend;
-    Chestionar chestionar;
+    Intrebare intrebare;
 
     OnMyEventListener myEventListener;
 
@@ -56,12 +56,12 @@ public class IntrebareLiberaFragment extends Fragment {
 
         Bundle bundle = getArguments();
         if (bundle != null) {
-            chestionar = (Chestionar) bundle.getSerializable(JocActivity.TAG_CHESTIONAR);
+            intrebare = (Intrebare) bundle.getSerializable(JocActivity.TAG_CHESTIONAR);
         } else {
-            throw new Error("Eroare transfer chestionar");
+            throw new Error("Eroare transfer intrebare");
         }
 
-        tvIntrebare.setText(chestionar.getIntrebare());
+        tvIntrebare.setText(intrebare.getIntrebare());
 
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override

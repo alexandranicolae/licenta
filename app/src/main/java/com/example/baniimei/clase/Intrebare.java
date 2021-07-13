@@ -3,7 +3,7 @@ package com.example.baniimei.clase;
 import java.io.Serializable;
 import java.util.List;
 
-public class Chestionar implements Serializable {
+public class Intrebare implements Serializable {
 
     private int id = 0;
     private String intrebare;
@@ -12,7 +12,7 @@ public class Chestionar implements Serializable {
     private String indiciu;
     private int idCapitol;
 
-    public Chestionar(int id, String intrebare, String raspunsCorect, List<String> raspunsuri, String indiciu, int idCapitol) {
+    public Intrebare(int id, String intrebare, String raspunsCorect, List<String> raspunsuri, String indiciu, int idCapitol) {
         this.id = id;
         this.intrebare = intrebare;
         this.raspunsCorect = raspunsCorect;

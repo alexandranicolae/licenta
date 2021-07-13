@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 import com.example.baniimei.R;
 import com.example.baniimei.activitati.JocActivity;
-import com.example.baniimei.clase.Chestionar;
+import com.example.baniimei.clase.Intrebare;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +30,7 @@ public class IntrebareQuizFragment extends Fragment {
 
     TextView intrebare;
     RadioGroup rgRasp;
-    Chestionar chestionar;
+    Intrebare intrebareChestionar;
     List<String> listarasp;
     int nrRasp;
 
@@ -43,12 +43,10 @@ public class IntrebareQuizFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        // This makes sure that the container activity has implemented
-        // the callback interface. If not, it throws an exception
         try {
             mCallback = (OnRadioGroupSelectedListener) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + "must implement OnRadioGroupSelectedListener");
+            throw new ClassCastException(activity.toString() + " trebuie sa implementeze OnRadioGroupSelectedListener");
         }
     }
 
@@ -65,26 +63,25 @@ public class IntrebareQuizFragment extends Fragment {
 
         Bundle bundle = getArguments();
         if (bundle != null) {
-            chestionar = (Chestionar) bundle.getSerializable(JocActivity.TAG_CHESTIONAR);
-        }
-        else {
-            throw new Error("Eroare transfer chestionar");
+            intrebareChestionar = (Intrebare) bundle.getSerializable(JocActivity.TAG_CHESTIONAR);
+        } else {
+            throw new Error("Eroare transfer intrebare");
         }
 
-        nrRasp= chestionar.getRaspunsuri().size()+1;
-        intrebare.setText(chestionar.getIntrebare());
+        nrRasp = intrebareChestionar.getRaspunsuri().size() + 1;
+        intrebare.setText(intrebareChestionar.getIntrebare());
 
-        listarasp=new ArrayList<>();
-        listarasp.add(chestionar.getRaspunsCorect());
-        listarasp.addAll(chestionar.getRaspunsuri());
+        listarasp = new ArrayList<>();
+        listarasp.add(intrebareChestionar.getRaspunsCorect());
+        listarasp.addAll(intrebareChestionar.getRaspunsuri());
         Collections.shuffle(listarasp);
 
-        for (int i=0;i<nrRasp;i++) {
+        for (int i = 0; i < nrRasp; i++) {
             RadioButton raspuns = new RadioButton(view.getContext());
             raspuns.setChecked(false);
             raspuns.setId(i + 100);
             raspuns.setText(listarasp.get(i));
-            if (listarasp.get(i).equals(chestionar.getRaspunsCorect())) {
+            if (listarasp.get(i).equals(intrebareChestionar.getRaspunsCorect())) {
                 corectCheckedId = i + 100;
             }
             rgRasp.addView(raspuns);
@@ -94,7 +91,7 @@ public class IntrebareQuizFragment extends Fragment {
             @SuppressLint("ResourceAsColor")
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton radioButton = group.findViewById(checkedId);
-                if (!chestionar.getRaspunsCorect().equals(radioButton.getText())) {
+                if (!intrebareChestionar.getRaspunsCorect().equals(radioButton.getText())) {
                     radioButton.setBackground(AppCompatResources.getDrawable(view.getContext(), R.color.design_default_color_error));
                     RadioButton rbCorect = group.findViewById(corectCheckedId);
                     rbCorect.setBackground(AppCompatResources.getDrawable(view.getContext(), R.color.grn));

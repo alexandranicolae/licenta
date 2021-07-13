@@ -1,5 +1,6 @@
 package com.example.baniimei.activitati;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.Dialog;
@@ -39,6 +40,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -51,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Capitol> listaCapitole;
 
-    SharedPreferences preferinteMuzica;
     SharedPreferences shNotificari;
     SharedPreferences sharedPrefsNume;
 
@@ -75,8 +77,7 @@ public class MainActivity extends AppCompatActivity {
         listaCapitole = new ArrayList<>();
         dbUser = new DAOUser();
 
-        preferinteMuzica = getSharedPreferences(getString(R.string.shprefs_numefisier), MODE_PRIVATE);
-        handleSunetFundal();
+        handleSunetFundal(this);
 
         shNotificari = getSharedPreferences(getString(R.string.shprefs_numefisier), MODE_PRIVATE);
         if (shNotificari.getBoolean(getString(R.string.shprefs_notificari_key), true)) {
@@ -90,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
         sharedPrefsNume = getSharedPreferences("DATE_USER", MODE_PRIVATE);
         String idUser = sharedPrefsNume.getString("ID_USER", "");
-        if (idUser.equals("") || idUser == null) {
+        if (idUser.equals("")) {
             requireNume();
         }
 
@@ -174,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        handleSunetFundal();
+        handleSunetFundal(this);
     }
 
     private View.OnClickListener informatiiClick() {
@@ -235,20 +236,18 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    private void handleSunetFundal() {
-        if (preferinteMuzica.getBoolean(getString(R.string.shprefs_muzica_key), true)) {
-            if (isMyServiceRunning(SunetFundalService.class)) {
-                stopService(new Intent(MainActivity.this, SunetFundalService.class));
-            } else {
-                startService(new Intent(MainActivity.this, SunetFundalService.class));
-            }
+    protected static void handleSunetFundal(Activity activity) {
+        if (isMyServiceRunning(activity)) {
+            activity.stopService(new Intent(activity, SunetFundalService.class));
+        } else {
+            activity.startService(new Intent(activity, SunetFundalService.class));
         }
     }
 
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+    private static boolean isMyServiceRunning(Activity activity) {
+        ActivityManager manager = (ActivityManager) activity.getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
+            if (SunetFundalService.class.getName().equals(service.service.getClassName())) {
                 return true;
             }
         }
@@ -281,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
                             Capitol capitol = new Capitol(id, titlu, dificultate);
                             listaCapitole.add(capitol);
                         }
+                        sortareLista();
                         listaCapitole.get(0).setActiv(true);
 
                     } catch (JSONException e) {
@@ -289,5 +289,18 @@ public class MainActivity extends AppCompatActivity {
                 },
                 error -> Toast.makeText(MainActivity.this, "Eroare baze de date Capitole: " + error.getMessage(), Toast.LENGTH_LONG).show());
         Volley.newRequestQueue(this).add(request);
+    }
+
+    public void sortareLista() {
+        Collections.sort(listaCapitole, new Comparator<Capitol>() {
+            @Override
+            public int compare(Capitol c1, Capitol c2) {
+                if (c1.getDificultate() == c2.getDificultate()) {
+                    return c1.getNumeCapitol().compareTo(c2.getNumeCapitol());
+                } else {
+                    return c1.getDificultate().compareTo(c2.getDificultate());
+                }
+            }
+        });
     }
 }

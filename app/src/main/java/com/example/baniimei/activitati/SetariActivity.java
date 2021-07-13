@@ -36,7 +36,6 @@ public class SetariActivity extends AppCompatActivity {
     Dialog desprePopup, evalueazaPopup;
     SharedPreferences.Editor sharedPrefs;
 
-    FirebaseStorage firebaseStorage;
     StorageReference storageReference;
     StorageReference reference;
     private static final String PDF_REF = "test.pdf";
@@ -125,8 +124,6 @@ public class SetariActivity extends AppCompatActivity {
                 btnEvalueaza.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //todo
-                        //sa se retina evaluarea in bd externa
                         Evaluare evaluare = new Evaluare(rating.getRating(), mesaj.getText().toString());
                         trimiteEvaluare(evaluare);
                         Toast.makeText(getApplicationContext(), rating.getRating() + " " + mesaj.getText(), Toast.LENGTH_LONG).show();
@@ -148,9 +145,7 @@ public class SetariActivity extends AppCompatActivity {
 
     private View.OnClickListener descarcaClick() {
         return v -> {
-            //TODO
             storageReference = FirebaseStorage.getInstance().getReference();
-
             reference = storageReference.child(PDF_REF);
             reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                 @Override
@@ -184,6 +179,8 @@ public class SetariActivity extends AppCompatActivity {
             sharedPrefs = getSharedPreferences(getString(R.string.shprefs_numefisier), MODE_PRIVATE).edit();
             sharedPrefs.putBoolean(getString(R.string.shprefs_muzica_key), isChecked);
             sharedPrefs.apply();
+
+            MainActivity.handleSunetFundal(this);
         };
     }
 

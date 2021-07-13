@@ -22,7 +22,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.baniimei.R;
 import com.example.baniimei.clase.Capitol;
-import com.example.baniimei.clase.Chestionar;
+import com.example.baniimei.clase.Intrebare;
 import com.example.baniimei.adaptoare.ListaAdaptorIntrebare;
 import com.example.baniimei.clase.DAOUser;
 import com.google.firebase.database.DataSnapshot;
@@ -42,20 +42,15 @@ import java.util.List;
 public class CapitoleJocActivity extends AppCompatActivity {
 
     private static final String DB_URL_INTREBARE = "http://alexandral.bestconstruct.ro/SelectIntrebare.php";
-    private static final int NR_INTR_RANDOM = 5;
+    private static final int NR_INTREBARI = 5;
     private static final int REQUEST_CODE_OK = 300;
     private static final int REQUEST_CODE_OK_ROATA = 400;
     static final String INTENT_INTREBARE = "INTREBARE";
-    static final String INTENT_CATEGORIE = "CATEGORIE";
 
-    private ListView listView;
     private TextView scor;
-    private Button btnRandom;
-    private ImageButton btnRoata, btnClasament;
 
     private ArrayList<Capitol> listaCapitole;
-    private ArrayList<Chestionar> listaIntrebari;
-    private ListaAdaptorIntrebare adapter;
+    private ArrayList<Intrebare> listaIntrebari;
 
     SharedPreferences prefUser;
     private String userKey = "";
@@ -68,11 +63,11 @@ public class CapitoleJocActivity extends AppCompatActivity {
         setTheme(R.style.Theme_BaniiMei);
         setContentView(R.layout.activity_capitole_joc);
 
-        listView = findViewById(R.id.listViewJoc);
+        ListView listView = findViewById(R.id.listViewJoc);
         scor = findViewById(R.id.tvScorCapitoleJoc);
-        btnRoata = findViewById(R.id.ibRoata);
-        btnRandom = findViewById(R.id.btnRandom);
-        btnClasament = findViewById(R.id.ibClasament);
+        ImageButton btnRoata = findViewById(R.id.ibRoata);
+        Button btnRandom = findViewById(R.id.btnRandom);
+        ImageButton btnClasament = findViewById(R.id.ibClasament);
 
         listaIntrebari = new ArrayList<>();
         Intent intent = getIntent();
@@ -86,9 +81,9 @@ public class CapitoleJocActivity extends AppCompatActivity {
         setScorDB();
         //scor.setText(daoUser.getScor(userKey));
 
-        // init adaptor
+        //init adaptor
         listView.setOnItemClickListener(adapterItemClick());
-        adapter = new ListaAdaptorIntrebare(CapitoleJocActivity.this, R.layout.forma_adaptor_joc, listaCapitole);
+        ListaAdaptorIntrebare adapter = new ListaAdaptorIntrebare(CapitoleJocActivity.this, R.layout.forma_adaptor_joc, listaCapitole);
         listView.setAdapter(adapter);
 
         btnRoata.setOnClickListener(clickRoata());
@@ -129,13 +124,12 @@ public class CapitoleJocActivity extends AppCompatActivity {
                 Capitol capitol = listaCapitole.get(position);
 
                 Intent intent = new Intent(CapitoleJocActivity.this, JocActivity.class);
-                ArrayList<Chestionar> temp = new ArrayList<>();
 
                 Collections.shuffle(listaIntrebari);
-
+                ArrayList<Intrebare> temp = new ArrayList<>();
                 int i = 0;
-                for (Chestionar c : listaIntrebari) {
-                    if (i == NR_INTR_RANDOM) {
+                for (Intrebare c : listaIntrebari) {
+                    if (i == NR_INTREBARI) {
                         break;
                     }
                     if (c.getIdCapitol() == capitol.getId()) {
@@ -155,10 +149,10 @@ public class CapitoleJocActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(CapitoleJocActivity.this, JocActivity.class);
-                ArrayList<Chestionar> temp = new ArrayList<>();
+                ArrayList<Intrebare> temp = new ArrayList<>();
 
                 Collections.shuffle(listaIntrebari);
-                for (int i = 0; i < NR_INTR_RANDOM; i++) {
+                for (int i = 0; i < NR_INTREBARI; i++) {
                     temp.add(listaIntrebari.get(i));
                 }
 
@@ -210,7 +204,7 @@ public class CapitoleJocActivity extends AppCompatActivity {
                             String indiciu = obiect.getString("indiciu");
                             int idCapitol = obiect.getInt("idCapitol");
 
-                            Chestionar intr = new Chestionar(id, intrebare, raspunsCorect, raspunsuri, indiciu, idCapitol);
+                            Intrebare intr = new Intrebare(id, intrebare, raspunsCorect, raspunsuri, indiciu, idCapitol);
                             listaIntrebari.add(intr);
                         }
 
@@ -231,15 +225,7 @@ public class CapitoleJocActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_OK && resultCode == RESULT_OK && data != null) {
-//            Bundle b = data.getExtras();
-//            int nrCompletate = (int) b.getSerializable(JocActivity.CODE_COMPLETATE);
-//            int nrTotale = (int) b.getSerializable(JocActivity.CODE_TOTALE);
-//
-//            //listaCapitole.get(pozUltimAccesat).setNrChCompletate(nrCompletate);
-//            //listaCapitole.get(pozUltimAccesat).setNrChTotale(nrTotale);
-
             setScorDB();
-            //scor.setText(daoUser.getScor(userKey));
         }
 
         if (requestCode == REQUEST_CODE_OK_ROATA && resultCode == RESULT_OK && data != null) {

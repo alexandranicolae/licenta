@@ -3,6 +3,7 @@ package com.example.baniimei.activitati;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ActivityManager;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -79,7 +80,6 @@ public class InfoActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (indexCurent == listaInformatii.size() - 1) {
                     //trimite inapoi la capitole + mesaj
-                    //todo mesaj
                     setResult(RESULT_OK, intent);
                     finish();
                     return;

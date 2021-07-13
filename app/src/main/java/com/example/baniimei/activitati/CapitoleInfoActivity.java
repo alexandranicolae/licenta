@@ -1,6 +1,6 @@
 package com.example.baniimei.activitati;
 
-import android.content.DialogInterface;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -9,8 +9,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,8 +21,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.baniimei.R;
@@ -45,18 +45,15 @@ public class CapitoleInfoActivity extends AppCompatActivity {
     private static final String DB_URL_INFO = "http://alexandral.bestconstruct.ro/SelectInformatie.php";
     private static final int REQUEST_CODE_OK = 200;
     static final String INTENT_INFORMATIE = "Info";
-    static final String INTENT_CAPITOL = "POZITIE";
-
-    private ListView listView;
 
     private List<Capitol> listaCapitole;
     private List<Capitol> listaCapitoleInitiala;
-    private List<Informatie> listaInformatii;
+    private List<Informatie> listaInformatiiInitiala;
     private ListaAdaptorInfo adapter;
-    private String query = "";
-    private List<Informatie> listaInfoFiltrata;
+    private String filtruCheie = "";
+    private List<Informatie> listaInfo;
     SharedPreferences.Editor sharedPrefs;
-    int pretCapitol;
+    //int pretCapitol;
     int punctaj = 0;
     DAOUser daoUser;
     String userKey = "";
@@ -70,9 +67,9 @@ public class CapitoleInfoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_capitole_info);
 
         // start initializari
-        listView = findViewById(R.id.listViewInfo);
+        ListView listView = findViewById(R.id.listViewInfo);
 
-        listaInformatii = new ArrayList<>();
+        listaInformatiiInitiala = new ArrayList<>();
         //listaInfoFiltrata = new ArrayList<>();
         Intent intent = getIntent();
         listaCapitole = (ArrayList<Capitol>) intent.getSerializableExtra(MainActivity.INTENT_LIST);
@@ -80,9 +77,11 @@ public class CapitoleInfoActivity extends AppCompatActivity {
         // init item clickEvent pt adaptor
         listView.setOnItemClickListener(adapterItemClick());
 
-        SharedPreferences preferinte = getSharedPreferences("Capitole active", MODE_PRIVATE);
+        SharedPreferences preferinte = getSharedPreferences(getString(R.string.prefid_capitole_active), MODE_PRIVATE);
         for (int i = 1; i < listaCapitole.size(); i++) {
-            listaCapitole.get(i).setActiv(preferinte.getBoolean(String.valueOf(listaCapitole.get(i).getId()), false));
+            String id = String.valueOf(listaCapitole.get(i).getId());
+            boolean pref = preferinte.getBoolean(id, false);
+            listaCapitole.get(i).setActiv(pref);
         }
 
         daoUser = new DAOUser();
@@ -95,16 +94,16 @@ public class CapitoleInfoActivity extends AppCompatActivity {
         getScorDB();
     }
 
-    private void updateListCapitole() {
+    private void updateListaCapitole() {
         listaCapitole.clear();
-        listaInfoFiltrata.clear();
+        listaInfo.clear();
         for (Capitol c : listaCapitoleInitiala) {
-            Informatie infoCapitol = null;
-            for (Informatie i : listaInformatii) {
+            Informatie infoCapitol;
+            for (Informatie i : listaInformatiiInitiala) {
                 if (c.getId() == i.getIdCapitol()) {
                     infoCapitol = i;
-                    if (infoCapitol != null && infoCapitol.getInformatie().toUpperCase().contains(query.toUpperCase())) {
-                        listaInfoFiltrata.add(infoCapitol);
+                    if (infoCapitol != null && infoCapitol.getInformatie().toUpperCase().contains(filtruCheie.toUpperCase())) {
+                        listaInfo.add(infoCapitol);
                         if (!listaCapitole.contains(c)) {
                             listaCapitole.add(c);
                         }
@@ -116,28 +115,24 @@ public class CapitoleInfoActivity extends AppCompatActivity {
     }
 
     private AdapterView.OnItemClickListener adapterItemClick() {
-        return new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                if (listaCapitole.get(position).isActiv()) {
-                    startInfoActivity(position);
-                } else {
-                    platesteDeblocare(position);
-                }
+        return (adapterView, view, position, id) -> {
+            if (listaCapitole.get(position).isActiv()) {
+                startInfoActivity(position);
+            } else {
+                platesteDeblocare(position);
             }
         };
     }
 
     public void startInfoActivity(int position) {
         ArrayList<Informatie> temp = new ArrayList<>();
-        for (Informatie c : listaInfoFiltrata) {
+        for (Informatie c : listaInfo) {
             if (c.getIdCapitol() == listaCapitole.get(position).getId())
                 temp.add(c);
         }
 
         Intent intent = new Intent(CapitoleInfoActivity.this, InfoActivity.class);
         intent.putExtra(INTENT_INFORMATIE, temp);
-        intent.putExtra(INTENT_CAPITOL, position);
         startActivityForResult(intent, REQUEST_CODE_OK);
 
         indexActivare = position + 1;
@@ -147,47 +142,38 @@ public class CapitoleInfoActivity extends AppCompatActivity {
         //sigur doriti?
         AlertDialog.Builder builder = new AlertDialog.Builder(CapitoleInfoActivity.this);
 
-        calculeazaPretCapitol(position);
+        int pretCapitol = calculeazaPretCapitol(position);
 
         builder.setMessage("Acest capitol este blocat. El poate fi deblocat daca capitolul de dinaintea lui este completat, sau in schimbul a " + pretCapitol + " monede. \nDoriti sa-l deblocati acum?");
         builder.setCancelable(true);
-        builder.setPositiveButton(R.string.da, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (punctaj >= pretCapitol) {
-                    // todo activeaza capitol
-                    activeazaCapitol(position);
-                    // scade puncte
-                    scadePuncte();
+        builder.setPositiveButton(R.string.da, (dialog, which) -> {
+            if (punctaj >= pretCapitol) {
+                activeazaCapitol(position);
+                scadePuncte(pretCapitol);
 
-                } else {
-                    // nu->toast fonduri insuficiente
-                    Toast.makeText(getApplicationContext(), "Fonduri insuficiente!", Toast.LENGTH_LONG).show();
-                }
-                dialog.cancel();
+            } else {
+                // nu->toast fonduri insuficiente
+                Toast.makeText(getApplicationContext(), "Fonduri insuficiente!", Toast.LENGTH_LONG).show();
             }
+            dialog.cancel();
         });
-        builder.setNegativeButton(R.string.nu, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
+        builder.setNegativeButton(R.string.nu, (dialog, which) -> dialog.cancel());
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
 
-    public void calculeazaPretCapitol(int poz) {
-        pretCapitol = 5;
+    public int calculeazaPretCapitol(int poz) {
+        int pretCapitol = 5;
         for (int i = 0; i < poz; i++) {
             if (!listaCapitole.get(i).isActiv()) {
                 pretCapitol += 5;
             }
         }
+        return pretCapitol;
     }
 
-    public void scadePuncte() {
-        punctaj -= pretCapitol;
+    public void scadePuncte(int puncteMinus) {
+        punctaj -= puncteMinus;
         daoUser.updateScor(userKey, String.valueOf(punctaj));
     }
 
@@ -211,38 +197,32 @@ public class CapitoleInfoActivity extends AppCompatActivity {
 
     private void getInfoDB() {
         StringRequest request = new StringRequest(Request.Method.GET, DB_URL_INFO,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONArray chestionareJSON = new JSONArray(response);
+                response -> {
+                    try {
+                        JSONArray chestionareJSON = new JSONArray(response);
 
-                            for (int i = 0; i < chestionareJSON.length(); i++) {
-                                JSONObject obiect = chestionareJSON.getJSONObject(i);
+                        for (int i = 0; i < chestionareJSON.length(); i++) {
+                            JSONObject obiect = chestionareJSON.getJSONObject(i);
 
-                                int id = obiect.getInt("idInfo");
-                                String titlu = obiect.getString("titluSubnivel");
-                                String informatie = obiect.getString("informatie");
-                                String exemplu1 = obiect.getString("exemplu1");
-                                String exemplu2 = obiect.getString("exemplu2");
-                                int idCapitol = obiect.getInt("idCapitol");
+                            int id = obiect.getInt("idInfo");
+                            String titlu = obiect.getString("titluSubnivel");
+                            String informatie = obiect.getString("informatie");
+                            String exemplu1 = obiect.getString("exemplu1");
+                            String exemplu2 = obiect.getString("exemplu2");
+                            int idCapitol = obiect.getInt("idCapitol");
 
-                                Informatie info = new Informatie(id, titlu, informatie, exemplu1, exemplu2, idCapitol);
-                                listaInformatii.add(info);
-                            }
-                            listaInfoFiltrata = new ArrayList<>(listaInformatii);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                            Informatie info = new Informatie(id, titlu, informatie, exemplu1, exemplu2, idCapitol);
+                            listaInformatiiInitiala.add(info);
                         }
+                        listaInfo = new ArrayList<>(listaInformatiiInitiala);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        System.out.println("EROARE AICI");
-                        Toast.makeText(CapitoleInfoActivity.this, "Eroare baze de date: " + error.getMessage(), Toast.LENGTH_LONG).show();
-                    }
+                error -> {
+                    System.out.println("EROARE AICI");
+                    Toast.makeText(CapitoleInfoActivity.this, "Eroare baze de date: " + error.getMessage(), Toast.LENGTH_LONG).show();
                 });
         Volley.newRequestQueue(this).add(request);
     }
@@ -251,21 +231,62 @@ public class CapitoleInfoActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && data != null) {
-            if (listaInfoFiltrata.size() == listaInformatii.size()) {
+            int nrInfoFiltrateCapitol = getNrInfoPerCapitol(listaInfo);
+            int nrInfoNefiltrateCapitol = getNrInfoPerCapitol(listaInformatiiInitiala);
+            if (nrInfoFiltrateCapitol == nrInfoNefiltrateCapitol) {
                 if (listaCapitoleInitiala.get(indexActivare) != null && !listaCapitoleInitiala.get(indexActivare).isActiv()) {
                     activeazaCapitol(indexActivare);
+                } else {
+                    showMesajPopUp();
                 }
-            } else {
-                //todo mesaj felicitari
             }
         }
     }
 
-    public void activeazaCapitol(int poz) {
+    public void showMesajPopUp() {
+        TextView btnX;
+        TextView tvMesaj;
+        TextView tvTitlu;
+        Button btn;
+
+        Dialog templatePopup = new Dialog(this);
+
+        templatePopup.setContentView(R.layout.template_popup);
+        btnX = templatePopup.findViewById(R.id.tvX);
+        tvMesaj = templatePopup.findViewById(R.id.tvMesaj);
+        btn = templatePopup.findViewById(R.id.btnMaiDeparte);
+        tvTitlu = templatePopup.findViewById(R.id.tvTitlu);
+
+        tvTitlu.setText("Felicitari!");
+        btn.setVisibility(View.INVISIBLE);
+        tvMesaj.setText("Esti un mastru in finante! Ai incheiat toate capitolele. Pot fi adaugate oricand noi capitole, deci fi pe faza! Pana atunci, succes la gestionarea banilor!");
+
+        btnX.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                templatePopup.dismiss();
+            }
+        });
+
+        templatePopup.show();
+    }
+
+    private int getNrInfoPerCapitol(List<Informatie> lista) {
+        int nr = 0;
+        Capitol c = listaCapitoleInitiala.get(indexActivare - 1);
+        for (Informatie i : lista) {
+            if (i.getIdCapitol() == c.getId()) {
+                nr++;
+            }
+        }
+        return nr;
+    }
+
+    private void activeazaCapitol(int poz) {
         listaCapitoleInitiala.get(poz).setActiv(true);
         adapter.notifyDataSetChanged();
 
-        sharedPrefs = getSharedPreferences("Capitole active", MODE_PRIVATE).edit();
+        sharedPrefs = getSharedPreferences(getString(R.string.prefid_capitole_active), MODE_PRIVATE).edit();
         sharedPrefs.putBoolean(String.valueOf(listaCapitoleInitiala.get(poz).getId()), listaCapitoleInitiala.get(poz).isActiv());
         sharedPrefs.apply();
     }
@@ -275,7 +296,6 @@ public class CapitoleInfoActivity extends AppCompatActivity {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.search, menu);
         MenuItem item = menu.findItem(R.id.searchId);
-
         SearchView searchView = (SearchView) item.getActionView();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -285,12 +305,11 @@ public class CapitoleInfoActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                query = newText;
-                updateListCapitole();
+                filtruCheie = newText;
+                updateListaCapitole();
                 return false;
             }
         });
-
         return super.onCreateOptionsMenu(menu);
     }
 }
