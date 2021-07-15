@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.baniimei.R;
 import com.example.baniimei.adaptoare.ListaAdaptorClasament;
@@ -55,6 +56,8 @@ public class ClasamentActivity extends AppCompatActivity {
             }
         });
 
+        MainActivity.isNetworkAvailable(this);
+
         daoUser = new DAOUser();
         prefUser = getSharedPreferences("DATE_USER", MODE_PRIVATE);
         userKey = prefUser.getString("ID_USER", "");
@@ -87,11 +90,17 @@ public class ClasamentActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                //Toast.makeText(MainActivity.this, "EROARE BAZA DE DATE!", Toast.LENGTH_SHORT).show();
             }
         });
 
         adapter = new ListaAdaptorClasament(ClasamentActivity.this, R.layout.forma_adaptor_clasament, userList);
         listView.setAdapter(adapter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MainActivity.isNetworkAvailable(this);
     }
 }

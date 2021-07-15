@@ -86,6 +86,7 @@ public class RuletaActivity extends AppCompatActivity {
         btnX.setOnClickListener(clickPopUp());
         btn.setOnClickListener(clickPopUp());
 
+        MainActivity.isNetworkAvailable(this);
         templatePopup.show();
     }
 
@@ -93,7 +94,7 @@ public class RuletaActivity extends AppCompatActivity {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(RuletaActivity.this, puncteCastigate, Toast.LENGTH_LONG).show();
+                //Toast.makeText(RuletaActivity.this, puncteCastigate, Toast.LENGTH_LONG).show();
                 intent.putExtra(INTENT_PUNCTE, Integer.parseInt(puncteCastigate));
                 setResult(RESULT_OK, intent);
 

@@ -3,6 +3,7 @@ package com.example.baniimei.activitati;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -45,6 +46,7 @@ public class CapitoleInfoActivity extends AppCompatActivity {
     private static final String DB_URL_INFO = "http://alexandral.bestconstruct.ro/SelectInformatie.php";
     private static final int REQUEST_CODE_OK = 200;
     static final String INTENT_INFORMATIE = "Info";
+    static final int PUNCTE_BONUS = 10;
 
     private List<Capitol> listaCapitole;
     private List<Capitol> listaCapitoleInitiala;
@@ -58,7 +60,11 @@ public class CapitoleInfoActivity extends AppCompatActivity {
     DAOUser daoUser;
     String userKey = "";
 
+    private static MediaPlayer sunetFelicitari = null;
+    SharedPreferences preferinteSunet;
+
     int indexActivare = 0;
+    Boolean aIncheiat = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,14 +90,30 @@ public class CapitoleInfoActivity extends AppCompatActivity {
             listaCapitole.get(i).setActiv(pref);
         }
 
+        SharedPreferences prefAIncheiat = getSharedPreferences("INCHEIAT", MODE_PRIVATE);
+        aIncheiat = prefAIncheiat.getBoolean("aIncheiat", false);
+
         daoUser = new DAOUser();
 
         // init adaptor
         adapter = new ListaAdaptorInfo(CapitoleInfoActivity.this, R.layout.forma_adaptor_info, listaCapitole);
         listView.setAdapter(adapter);
         listaCapitoleInitiala = new ArrayList<>(listaCapitole);
+
+        preferinteSunet = getSharedPreferences(getString(R.string.shprefs_numefisier), MODE_PRIVATE);
+        if (preferinteSunet.getBoolean(getString(R.string.shprefs_sunet_key), true)) {
+            sunetFelicitari = MediaPlayer.create(this, R.raw.success);
+        }
+
+        MainActivity.isNetworkAvailable(this);
         getInfoDB();
         getScorDB();
+    }
+
+    @Override
+    protected void onResume() {
+        MainActivity.isNetworkAvailable(this);
+        super.onResume();
     }
 
     private void updateListaCapitole() {
@@ -126,40 +148,46 @@ public class CapitoleInfoActivity extends AppCompatActivity {
 
     public void startInfoActivity(int position) {
         ArrayList<Informatie> temp = new ArrayList<>();
-        for (Informatie c : listaInfo) {
-            if (c.getIdCapitol() == listaCapitole.get(position).getId())
-                temp.add(c);
+        if (listaInfo != null) {
+            for (Informatie c : listaInfo) {
+                if (c.getIdCapitol() == listaCapitole.get(position).getId())
+                    temp.add(c);
+            }
+
+
+            Intent intent = new Intent(CapitoleInfoActivity.this, InfoActivity.class);
+            intent.putExtra(INTENT_INFORMATIE, temp);
+            startActivityForResult(intent, REQUEST_CODE_OK);
+
+            indexActivare = position + 1;
         }
-
-        Intent intent = new Intent(CapitoleInfoActivity.this, InfoActivity.class);
-        intent.putExtra(INTENT_INFORMATIE, temp);
-        startActivityForResult(intent, REQUEST_CODE_OK);
-
-        indexActivare = position + 1;
     }
 
     public void platesteDeblocare(int position) {
-        //sigur doriti?
-        AlertDialog.Builder builder = new AlertDialog.Builder(CapitoleInfoActivity.this);
+        if (MainActivity.isNetworkAvailable(this)) {
+            //sigur doriti?
+            AlertDialog.Builder builder = new AlertDialog.Builder(CapitoleInfoActivity.this);
 
-        int pretCapitol = calculeazaPretCapitol(position);
+            int pretCapitol = calculeazaPretCapitol(position);
 
-        builder.setMessage("Acest capitol este blocat. El poate fi deblocat daca capitolul de dinaintea lui este completat, sau in schimbul a " + pretCapitol + " monede. \nDoriti sa-l deblocati acum?");
-        builder.setCancelable(true);
-        builder.setPositiveButton(R.string.da, (dialog, which) -> {
-            if (punctaj >= pretCapitol) {
-                activeazaCapitol(position);
-                scadePuncte(pretCapitol);
+            builder.setMessage("Acest capitol este blocat. El poate fi deblocat daca capitolul de dinaintea lui este completat, sau in schimbul a " + pretCapitol + " monede. \nDoriti sa-l deblocati acum?");
+            builder.setCancelable(true);
+            builder.setPositiveButton(R.string.da, (dialog, which) -> {
+                if (punctaj >= pretCapitol) {
+                    activeazaCapitol(position);
+                    scadePuncte(pretCapitol);
 
-            } else {
-                // nu->toast fonduri insuficiente
-                Toast.makeText(getApplicationContext(), "Fonduri insuficiente!", Toast.LENGTH_LONG).show();
-            }
-            dialog.cancel();
-        });
-        builder.setNegativeButton(R.string.nu, (dialog, which) -> dialog.cancel());
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
+                } else {
+                    // nu->toast fonduri insuficiente
+                    Toast.makeText(getApplicationContext(), "Fonduri insuficiente!", Toast.LENGTH_LONG).show();
+                }
+                dialog.cancel();
+            });
+            builder.setNegativeButton(R.string.nu, (dialog, which) -> dialog.cancel());
+            AlertDialog alertDialog = builder.create();
+
+            alertDialog.show();
+        }
     }
 
     public int calculeazaPretCapitol(int poz) {
@@ -221,8 +249,8 @@ public class CapitoleInfoActivity extends AppCompatActivity {
                     }
                 },
                 error -> {
-                    System.out.println("EROARE AICI");
-                    Toast.makeText(CapitoleInfoActivity.this, "Eroare baze de date: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                    System.out.println("EROARE baza de date");
+                    //Toast.makeText(CapitoleInfoActivity.this, "Eroare baze de date: " + error.getMessage(), Toast.LENGTH_LONG).show();
                 });
         Volley.newRequestQueue(this).add(request);
     }
@@ -234,13 +262,33 @@ public class CapitoleInfoActivity extends AppCompatActivity {
             int nrInfoFiltrateCapitol = getNrInfoPerCapitol(listaInfo);
             int nrInfoNefiltrateCapitol = getNrInfoPerCapitol(listaInformatiiInitiala);
             if (nrInfoFiltrateCapitol == nrInfoNefiltrateCapitol) {
-                if (listaCapitoleInitiala.get(indexActivare) != null && !listaCapitoleInitiala.get(indexActivare).isActiv()) {
+                if (indexActivare < listaCapitoleInitiala.size() && !listaCapitoleInitiala.get(indexActivare).isActiv()) {
                     activeazaCapitol(indexActivare);
                 } else {
-                    showMesajPopUp();
+                    if (indexActivare >= listaCapitoleInitiala.size() && !aIncheiat) {
+                        showMesajPopUp();
+                        pornesteSunetFelicitari();
+                        adaugaPuncte(PUNCTE_BONUS);
+                        aIncheiat = true;
+
+                        SharedPreferences.Editor sharedPrefsEditor = getSharedPreferences("INCHEIAT", MODE_PRIVATE).edit();
+                        sharedPrefsEditor.putBoolean("aIncheiat", aIncheiat);
+                        sharedPrefsEditor.apply();
+                    }
                 }
             }
         }
+    }
+
+    private void pornesteSunetFelicitari() {
+        if (sunetFelicitari != null) {
+            sunetFelicitari.start();
+        }
+    }
+
+    private void adaugaPuncte(int puncteBonus) {
+        punctaj += puncteBonus;
+        daoUser.updateScor(userKey, String.valueOf(punctaj));
     }
 
     public void showMesajPopUp() {

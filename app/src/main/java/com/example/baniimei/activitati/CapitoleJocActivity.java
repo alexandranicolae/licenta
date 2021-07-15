@@ -1,9 +1,5 @@
 package com.example.baniimei.activitati;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -15,16 +11,20 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.baniimei.R;
-import com.example.baniimei.clase.Capitol;
-import com.example.baniimei.clase.Intrebare;
 import com.example.baniimei.adaptoare.ListaAdaptorIntrebare;
+import com.example.baniimei.clase.Capitol;
 import com.example.baniimei.clase.DAOUser;
+import com.example.baniimei.clase.Intrebare;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -37,6 +37,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class CapitoleJocActivity extends AppCompatActivity {
@@ -78,9 +79,6 @@ public class CapitoleJocActivity extends AppCompatActivity {
         userKey = prefUser.getString("ID_USER", "");
         daoUser = new DAOUser();
 
-        setScorDB();
-        //scor.setText(daoUser.getScor(userKey));
-
         //init adaptor
         listView.setOnItemClickListener(adapterItemClick());
         ListaAdaptorIntrebare adapter = new ListaAdaptorIntrebare(CapitoleJocActivity.this, R.layout.forma_adaptor_joc, listaCapitole);
@@ -89,17 +87,21 @@ public class CapitoleJocActivity extends AppCompatActivity {
         btnRoata.setOnClickListener(clickRoata());
         btnClasament.setOnClickListener(clickClasament());
         btnRandom.setOnClickListener(clickRandom());
+
+        MainActivity.isNetworkAvailable(this);
         getIntrebariDB();
+        setScorDB();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         setScorDB();
-        //scor.setText(daoUser.getScor(userKey));
+        MainActivity.isNetworkAvailable(this);
     }
 
     public void setScorDB() {
+
         DatabaseReference dbref = daoUser.getDatabaseReference().child(userKey).child("scor");
         dbref.addValueEventListener(new ValueEventListener() {
             @Override
@@ -113,6 +115,7 @@ public class CapitoleJocActivity extends AppCompatActivity {
                 System.out.println("failed" + error.getMessage());
             }
         });
+
     }
 
     private AdapterView.OnItemClickListener adapterItemClick() {
@@ -176,10 +179,20 @@ public class CapitoleJocActivity extends AppCompatActivity {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(CapitoleJocActivity.this, RuletaActivity.class);
-                startActivityForResult(intent, REQUEST_CODE_OK_ROATA);
+                SharedPreferences prefs = getSharedPreferences("ACCESARE RULETA", MODE_PRIVATE);
+                Date myDate = new Date(prefs.getLong("dataAccesata", 0));
+                Date d = new Date();
+                if (myDate.getDay() != d.getDay()) {
+                    prefs.edit().putLong("dataAccesata", (new Date()).getTime()).apply();
+
+                    Intent intent = new Intent(CapitoleJocActivity.this, RuletaActivity.class);
+                    startActivityForResult(intent, REQUEST_CODE_OK_ROATA);
+                } else {
+                    Toast.makeText(CapitoleJocActivity.this, "Ruleta a fost accesata deja astazi. Mai incearca maine!", Toast.LENGTH_LONG).show();
+                }
             }
         };
+
     }
 
     private void getIntrebariDB() {
@@ -215,15 +228,17 @@ public class CapitoleJocActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(CapitoleJocActivity.this, "Eroare baze de date: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                        //Toast.makeText(CapitoleJocActivity.this, "Eroare baze de date: " + error.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 });
         Volley.newRequestQueue(this).add(request);
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == REQUEST_CODE_OK && resultCode == RESULT_OK && data != null) {
             setScorDB();
         }

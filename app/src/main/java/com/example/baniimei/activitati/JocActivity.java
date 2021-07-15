@@ -39,7 +39,6 @@ public class JocActivity extends AppCompatActivity
     private static final int minusHint = 5;
     private static final int plusPct = 5;
 
-    //private static MediaPlayer sunetJocIncheiat = null;
     private static MediaPlayer sunetRspGresit = null;
     private static MediaPlayer sunetRspCorect = null;
 
@@ -90,9 +89,16 @@ public class JocActivity extends AppCompatActivity
 
         index = 0;
 
+        MainActivity.isNetworkAvailable(this);
         btnHint.setOnClickListener(clickBtnHint());
         setScorDB();
         schimbaFragment();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MainActivity.isNetworkAvailable(this);
     }
 
     public void setScorDB() {
@@ -113,6 +119,7 @@ public class JocActivity extends AppCompatActivity
     }
 
     private View.OnClickListener clickBtnHint() {
+        MainActivity.isNetworkAvailable(this);
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -245,6 +252,7 @@ public class JocActivity extends AppCompatActivity
     }
 
     public void handleRaspuns(String raspunsDat) {
+        MainActivity.isNetworkAvailable(this);
         index++;
         //e corect? ne asiguram ca rasp dat de la tastatura e ok si el
         if (listaIntrebari.get(index - 1).getRaspunsCorect().toUpperCase().replaceAll("\\s", "")
@@ -266,7 +274,7 @@ public class JocActivity extends AppCompatActivity
             // nu->next intreb
             schimbaFragment();
         } else {
-            // da->mesaj felicitari popup+ inapoi la capitol(+send score si activeaza next)
+            // da->mesaj felicitari popup+ inapoi la lista capitole
             showMesajPopup(JocActivity.this, "Joc incheiat");
         }
         aCerutHint = false;

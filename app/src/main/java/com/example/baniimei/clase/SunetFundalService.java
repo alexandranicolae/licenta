@@ -33,6 +33,13 @@ public class SunetFundalService extends Service {
     }
 
     @Override
+    public boolean stopService(Intent name) {
+        stopForeground(true);
+        stopSelf();
+        return super.stopService(name);
+    }
+
+    @Override
     public void onDestroy() {
         mediaPlayer.stop();
         mediaPlayer.release();
