@@ -28,7 +28,6 @@
     <string name="default_money">15</string>
     <string name="default_lvlname">LvL</string>
     <string name="btn_maideparte">Mai departe</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="exemplu1">Exemplu1:</string>
     <string name="default_info">Informatii</string>
@@ -52,7 +51,6 @@
     <string name="da">DA</string>
     <string name="dialog_hint">Un indiciu costa 5 banuti. Doriti sa-l cumparati?</string>
     <string name="hint_title">Indiciu</string>
-    <string name="joc_incheiat">Felicitari! Esti un geniu in domeniul financiar si ai incheiat toate capitolele! In continuare, poti relua informatiile, poti descarca foi de lucru sau poti astepta noi implementari (nu uita sa actualizezi aplicatia)</string>
     <string name="titlu_joc_incheiat">Joc incheiat!</string>
     <string name="ok_finish">OK</string>
     <string name="shprefs_sunet_key">Sunet</string>

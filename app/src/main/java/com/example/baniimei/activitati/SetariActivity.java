@@ -38,7 +38,7 @@ public class SetariActivity extends AppCompatActivity {
 
     StorageReference storageReference;
     StorageReference reference;
-    private static final String PDF_REF = "test.pdf";
+    private static final String PDF_REF = "Fișe de lucru.pdf";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
