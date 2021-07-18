@@ -50,7 +50,7 @@ import java.util.Comparator;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String DB_URL_CAPITOL = "http://alexandral.bestconstruct.ro//SelectCapitol.php";
+    private static final String DB_URL_CAPITOL = "https://alexandral.bestconstruct.ro//SelectCapitol.php";
     protected static final String INTENT_LIST = "List";
 
     private Button btnSetari;
@@ -326,7 +326,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 },
                 error -> {
-                    //Toast.makeText(MainActivity.this, "Eroare baze de date Capitole: " + error.getMessage(), Toast.LENGTH_LONG).show());
+                    System.out.println(error.getMessage());
+                    Toast.makeText(MainActivity.this, "Eroare baze de date Capitole: " + error.getMessage(), Toast.LENGTH_LONG).show();
                 });
         Volley.newRequestQueue(this).add(request);
     }

@@ -43,7 +43,7 @@ import java.util.List;
 
 public class CapitoleInfoActivity extends AppCompatActivity {
 
-    private static final String DB_URL_INFO = "http://alexandral.bestconstruct.ro/SelectInformatie.php";
+    private static final String DB_URL_INFO = "https://alexandral.bestconstruct.ro/SelectInformatie.php";
     private static final int REQUEST_CODE_OK = 200;
     static final String INTENT_INFORMATIE = "Info";
     static final int PUNCTE_BONUS = 10;

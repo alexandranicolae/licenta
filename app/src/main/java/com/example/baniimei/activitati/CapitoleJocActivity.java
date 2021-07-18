@@ -42,7 +42,7 @@ import java.util.List;
 
 public class CapitoleJocActivity extends AppCompatActivity {
 
-    private static final String DB_URL_INTREBARE = "http://alexandral.bestconstruct.ro/SelectIntrebare.php";
+    private static final String DB_URL_INTREBARE = "https://alexandral.bestconstruct.ro/SelectIntrebare.php";
     private static final int NR_INTREBARI = 5;
     private static final int REQUEST_CODE_OK = 300;
     private static final int REQUEST_CODE_OK_ROATA = 400;
